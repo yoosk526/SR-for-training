@@ -48,4 +48,4 @@ model.load_state_dict(torch.load(weights))
 
 model.to(device)
 
-Convert_ONNX(model, (1, 3, 224, 320), "x4_224_320.onnx")    # (B, C, H, W)
+Convert_ONNX(model, (1, 3, 224, 320), "onnx/x4_224_320.onnx")    # (B, C, H, W)
