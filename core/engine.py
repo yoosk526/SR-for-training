@@ -6,6 +6,7 @@ import json
 import matplotlib.pyplot as plt
 
 from time import time
+from pytz import timezone
 from datetime import datetime
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import StepLR
@@ -14,8 +15,8 @@ from data.dataset import get_dataloader
 from model import get_model
 from model.cslr import CosineAnnealingWarmUpRestarts
 from utils.metric import AverageMeter
-from torchmetrics.functional import peak_signal_noise_ratio, \
-    structural_similarity_index_measure
+from torchmetrics.functional.image import peak_signal_noise_ratio, \
+        structural_similarity_index_measure
 
 class Trainer:
     def __init__(self, args):
@@ -85,7 +86,7 @@ class Trainer:
             print(f"# Train Super Resolution Model [{e}/{self.epochs}]")
             self._train()
             self._valid()
-            print("\033[F\033[J",end="")
+            # print("\033[F\033[J",end="")
             if e % self.save_interval == 0:
                 self._save_model(e)
                 
@@ -100,7 +101,7 @@ class Trainer:
         if not os.path.exists("./run/train"):
             os.makedirs("./run/train")
         
-        exp_name = self.args.model + "-" + datetime.now().strftime("%y%m%d-%H-%M")
+        exp_name = self.args.model + "-" + datetime.now(timezone('Asia/Seoul')).strftime("%y%m%d-%H-%M")
         exp_dir = os.path.join("./run/train", exp_name)
         
         # remove duplicate dir
@@ -138,7 +139,7 @@ class Trainer:
             train_bar.set_description(
                 f"# TRAIN : loss(avg)={train_loss_meter.avg:.5f}"
             )
-        print("\033[F\033[J",end="")
+        # print("\033[F\033[J",end="")
         self.train_loss_data.append(train_loss_meter.extract())
         del train_loss_meter
         self.scheduler.step()
@@ -164,7 +165,7 @@ class Trainer:
                 )
         self.valid_psnr_data.append(psnr_meter.extract())
         self.valid_ssim_data.append(ssim_meter.extract())
-        print("\033[F\033[J",end="")
+        # print("\033[F\033[J",end="")
         del psnr_meter
         del ssim_meter        
     
