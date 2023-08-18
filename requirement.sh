@@ -1,3 +1,5 @@
+git config --global alias.st status    # git status -> git st
+
 pip install ujson    # Loading annotations faster
 pip install torchmetrics
 pip install albumentations
