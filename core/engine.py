@@ -212,11 +212,11 @@ class Trainer:
                 ssim_max_indices = i
         
         print(f"# TRAIN RESULTs")        
-        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f}")
-        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f}")
+        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
+        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
         
         
-        # draw training_loss graph
+        # Draw training_loss graph
         indices = []
         buffer_min = []
         buffer_max = []
@@ -227,6 +227,7 @@ class Trainer:
             buffer_max.append(train_loss['max'])
             buffer_avg.append(train_loss['avg'])
         
+        plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
         plt.plot(indices, buffer_avg, 'g', label='Loss(avg)')
         plt.plot(indices, buffer_max, 'b', label='Loss(max)')
@@ -236,11 +237,40 @@ class Trainer:
         plt.ylabel('Loss')
         plt.title('Training Loss')
         
-        plt.xticks(range(min(indices), max(indices)+1, 1))
+        plt.xticks(range(min(indices), max(indices)+1, 1), fontsize=5)
         
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
+        # Draw PSNR & SSIM graph
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+
+        # PSNR
+        ax1.plot(indices, self.valid_psnr_data, 'r', label='PSNR')
+        ax1.set_xlabel('Epochs')
+        ax1.set_ylabel('PSNR', color='r')
+
+        # SSIM
+        ax2 = ax1.twinx()
+        ax2.plot(indices, self.valid_ssim_data, 'b', label='SSIM')
+        ax2.set_ylabel('SSIM', color='b', rotation=-90)
+
+        ax1.set_xticks(range(min(indices), max(indices)+1, 1))
+        ax1.set_xticklabels(range(min(indices), max(indices)+1, 1), fontsize=5)
+
+        plt.title('PSNR & SSIM')
+
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc='upper left')
+
+        plt.savefig(os.path.join(self.exp_dir, 'psnr_ssim.png'))
+
         elapsed_time = time() - self.start_time
         hours, remainder = divmod(elapsed_time, 3600)
         minutes, seconds = divmod(remainder, 60)
         print(f"# elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s")
+
+        with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
+            f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s")
+            f.write(f"# PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
+            f.write(f"# SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
