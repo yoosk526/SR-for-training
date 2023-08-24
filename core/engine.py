@@ -274,6 +274,6 @@ class Trainer:
         print(f"# elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s")
 
         with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
-            f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s")
-            f.write(f"# PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
-            f.write(f"# SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
+            f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s\n")
+            f.write(f"# PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})\n")
+            f.write(f"# SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})\n")
