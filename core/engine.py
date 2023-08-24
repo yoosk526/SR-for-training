@@ -249,7 +249,7 @@ class Trainer:
 
         # PSNR
         ax1.plot(range(min(indices), max(indices)+1, 1), valid_psnr_avg_data, 'r', label='PSNR')
-        ax1.set_xlabel('Epochs')
+        ax1.set_xlabel('Epoch')
         ax1.set_ylabel('PSNR', color='r')
 
         # SSIM
