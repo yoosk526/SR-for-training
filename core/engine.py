@@ -255,7 +255,7 @@ class Trainer:
         # SSIM
         ax2 = ax1.twinx()
         ax2.plot(range(min(indices), max(indices)+1, 1), valid_ssim_avg_data, 'b', label='SSIM')
-        ax2.set_ylabel('SSIM', color='b', rotation=-90)
+        ax2.set_ylabel('SSIM', color='b', rotation=-90, labelpad=15)
 
         ax1.set_xticks(range(min(indices), max(indices)+1, 1))
         ax1.set_xticklabels(range(min(indices), max(indices)+1, 1), fontsize=5)
