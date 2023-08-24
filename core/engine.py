@@ -244,13 +244,13 @@ class Trainer:
         fig, ax1 = plt.subplots(figsize=(10, 6))
 
         # PSNR
-        ax1.plot(indices, self.valid_psnr_data['avg'], 'r', label='PSNR')
+        ax1.plot(range(min(indices), max(indices)+1, 1), self.valid_psnr_data['avg'], 'r', label='PSNR')
         ax1.set_xlabel('Epochs')
         ax1.set_ylabel('PSNR', color='r')
 
         # SSIM
         ax2 = ax1.twinx()
-        ax2.plot(indices, self.valid_ssim_data['avg'], 'b', label='SSIM')
+        ax2.plot(range(min(indices), max(indices)+1, 1), self.valid_ssim_data['avg'], 'b', label='SSIM')
         ax2.set_ylabel('SSIM', color='b', rotation=-90)
 
         ax1.set_xticks(range(min(indices), max(indices)+1, 1))
