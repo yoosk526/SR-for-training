@@ -240,17 +240,21 @@ class Trainer:
         
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
+        # Extract average value from list
+        valid_psnr_avg_data = [item['avg'] for item in self.valid_psnr_data]
+        valid_ssim_avg_data = [item['avg'] for item in self.valid_ssim_data]
+
         # Draw PSNR & SSIM graph
         fig, ax1 = plt.subplots(figsize=(10, 6))
 
         # PSNR
-        ax1.plot(range(min(indices), max(indices)+1, 1), self.valid_psnr_data['avg'], 'r', label='PSNR')
+        ax1.plot(range(min(indices), max(indices)+1, 1), valid_psnr_avg_data, 'r', label='PSNR')
         ax1.set_xlabel('Epochs')
         ax1.set_ylabel('PSNR', color='r')
 
         # SSIM
         ax2 = ax1.twinx()
-        ax2.plot(range(min(indices), max(indices)+1, 1), self.valid_ssim_data['avg'], 'b', label='SSIM')
+        ax2.plot(range(min(indices), max(indices)+1, 1), valid_ssim_avg_data, 'b', label='SSIM')
         ax2.set_ylabel('SSIM', color='b', rotation=-90)
 
         ax1.set_xticks(range(min(indices), max(indices)+1, 1))
