@@ -40,7 +40,7 @@ def Convert_ONNX(model:nn.Module, input_shape:tuple, name:str):
     print('# Model has been converted to ONNX')
     print(f'# CREATE NEW ONNX FILE = {name}')
 
-weights = "./run/train/abpn-230818-20-12/weights/abpn_final.pth"
+weights = "./run/train/abpn-230824-20-29/weights/abpn_final.pth"
 
 model = abpn.ABPN()
 
