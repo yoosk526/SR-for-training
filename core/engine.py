@@ -98,11 +98,8 @@ class Trainer:
         if not os.path.exists("./run"):
             os.makedirs("./run")
         
-        if not os.path.exists("./run/train"):
-            os.makedirs("./run/train")
-        
         exp_name = self.args.model + "-" + datetime.now(timezone('Asia/Seoul')).strftime("%y%m%d-%H-%M")
-        exp_dir = os.path.join("./run/train", exp_name)
+        exp_dir = os.path.join("./run", exp_name)
         
         # remove duplicate dir
         if os.path.exists(exp_dir):
