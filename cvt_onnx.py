@@ -55,7 +55,7 @@ def main(args):
     print(f"Device : {device}\n")
 
     weight = args.weight
-    ins_dir = weight + "weigths/abpn_final.pth"
+    ins_dir = weight + "weights/abpn_final.pth"
 
     h, w = args.height, args.width
 
