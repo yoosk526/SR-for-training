@@ -15,10 +15,12 @@ if str(ROOT) not in sys.path:
 
 def get_args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weight", type=str)
+    parser.add_argument("--weight_dir", type=str, 
+                        help='Directory of weight file')
     parser.add_argument("--height", type=int, default=270)
     parser.add_argument("--width", type=int, default=480)
     parser.add_argument("--model", type=str, default='abpn')  
+    parser.add_argument("--save_dir", type=str, default='onnx/x4_270_480.onnx')  
 
     return parser
 
@@ -54,8 +56,7 @@ def main(args):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Device : {device}\n")
 
-    weight = args.weight
-    ins_dir = weight + "weights/abpn_final.pth"
+    ins_dir = args.weight_dir
 
     h, w = args.height, args.width
 
@@ -70,7 +71,7 @@ def main(args):
 
     model.to(device)
 
-    exp_dir = "onnx/x4_" + str(h) + "_" + str(w)
+    exp_dir = args.save_dir
 
     Convert_ONNX(model, (1, 3, h, w), exp_dir, device)    # (B, C, H, W)
 
