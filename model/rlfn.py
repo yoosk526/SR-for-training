@@ -133,6 +133,9 @@ class RLFN(nn.Module):
         out_b5 = self.block_5(out_b4)
         out_b6 = self.block_6(out_b5)
         
-        out_los_res = self.conv_2(out_b6) + out_feature
-        output = self.upsampler(out_los_res)
+        out_low_resolution = self.conv_2(out_b6) + out_feature
+
+        # output_ = self.conv_2(out_low_resolution)
+        output = self.upsampler(out_low_resolution)
+
         return output

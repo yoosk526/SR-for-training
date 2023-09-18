@@ -36,7 +36,7 @@ class ESA(nn.Module):
         self.conv1 = conv(n_feats, f, kernel_size=1)
         self.conv_f = conv(f, f, kernel_size=1)         # Pointwise conv
         
-        self.conv2 = conv(f, f, kernel_size=3, stride=2, padding=0)
+        self.conv2 = conv(f, f, kernel_size=3, stride=2, padding=0)     # Strided Conv
         self.conv3 = conv(f, f, kernel_size=3, padding=1)
         self.conv4 = conv(f, n_feats, kernel_size=1)
         
@@ -106,15 +106,17 @@ class RLFN_S(nn.Module):
     def __init__(self,
                  in_channels=3,
                  out_channels=3,
-                 feature_channels=30,
+                 feature_channels=None,
                  mid_channels=32,
                  upscale=4):
         super().__init__()
+
         if feature_channels is None:
             feature_channels = 46    # DEFAULT
-        self.conv_1 = conv_layer(in_channels,
-                                       feature_channels,
-                                       kernel_size=3)
+
+        self.conv_1 = conv_layer(in_channels, 
+                                 feature_channels,
+                                 kernel_size=3)
 
         self.block_1 = RLFB(feature_channels, mid_channels)
         self.block_2 = RLFB(feature_channels, mid_channels)
@@ -122,12 +124,12 @@ class RLFN_S(nn.Module):
         self.block_4 = RLFB(feature_channels, mid_channels)
 
         self.conv_2 = conv_layer(feature_channels,
-                                       feature_channels,
-                                       kernel_size=3)
+                                 feature_channels,
+                                 kernel_size=3)
 
         self.upsampler = pixelshuffle_blocks(feature_channels,
-                                                  out_channels,
-                                                  upscale_factor=upscale)
+                                             out_channels,
+                                             upscale_factor=upscale)
 
     def forward(self, x):
         out_feature = self.conv_1(x)
@@ -138,6 +140,8 @@ class RLFN_S(nn.Module):
         out_b4 = self.block_4(out_b3)
 
         out_low_resolution = self.conv_2(out_b4) + out_feature
+        
+        # output_ = self.conv_2(out_low_resolution)
         output = self.upsampler(out_low_resolution)
 
         return output
