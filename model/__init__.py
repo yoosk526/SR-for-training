@@ -8,7 +8,7 @@ def get_model(args):
     feature = args.feature
     
     if model == 'rlfn':
-        return RLFN(feature=feature, upscale=upscale)
+        return RLFN(feature_channels=feature, upscale=upscale)
     
     if model == 'rlfn_s':
         return RLFN_S(feature_channels=feature, upscale=upscale)
