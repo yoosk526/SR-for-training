@@ -112,7 +112,7 @@ class RLFN_S(nn.Module):
         super().__init__()
 
         if feature_channels is None:
-            feature_channels = 46    # DEFAULT
+            feature_channels = 48    # DEFAULT
 
         self.conv_1 = conv_layer(in_channels, 
                                  feature_channels,
