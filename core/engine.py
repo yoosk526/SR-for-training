@@ -6,6 +6,7 @@ import json
 import matplotlib.pyplot as plt
 
 from time import time
+from pytz import timezone
 from datetime import datetime
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import StepLR
@@ -14,8 +15,8 @@ from data.dataset import get_dataloader
 from model import get_model
 from model.cslr import CosineAnnealingWarmUpRestarts
 from utils.metric import AverageMeter
-from torchmetrics.functional import peak_signal_noise_ratio, \
-    structural_similarity_index_measure
+from torchmetrics.functional.image import peak_signal_noise_ratio, \
+        structural_similarity_index_measure
 
 class Trainer:
     def __init__(self, args):
@@ -85,7 +86,7 @@ class Trainer:
             print(f"# Train Super Resolution Model [{e}/{self.epochs}]")
             self._train()
             self._valid()
-            print("\033[F\033[J",end="")
+            # print("\033[F\033[J",end="")
             if e % self.save_interval == 0:
                 self._save_model(e)
                 
@@ -97,11 +98,8 @@ class Trainer:
         if not os.path.exists("./run"):
             os.makedirs("./run")
         
-        if not os.path.exists("./run/train"):
-            os.makedirs("./run/train")
-        
-        exp_name = self.args.model + "-" + datetime.now().strftime("%y%m%d-%H-%M")
-        exp_dir = os.path.join("./run/train", exp_name)
+        exp_name = self.args.model + "-" + datetime.now(timezone('Asia/Seoul')).strftime("%y%m%d-%H-%M")
+        exp_dir = os.path.join("./run", exp_name)
         
         # remove duplicate dir
         if os.path.exists(exp_dir):
@@ -138,7 +136,7 @@ class Trainer:
             train_bar.set_description(
                 f"# TRAIN : loss(avg)={train_loss_meter.avg:.5f}"
             )
-        print("\033[F\033[J",end="")
+        # print("\033[F\033[J",end="")
         self.train_loss_data.append(train_loss_meter.extract())
         del train_loss_meter
         self.scheduler.step()
@@ -164,7 +162,7 @@ class Trainer:
                 )
         self.valid_psnr_data.append(psnr_meter.extract())
         self.valid_ssim_data.append(ssim_meter.extract())
-        print("\033[F\033[J",end="")
+        # print("\033[F\033[J",end="")
         del psnr_meter
         del ssim_meter        
     
@@ -211,11 +209,10 @@ class Trainer:
                 ssim_max_indices = i
         
         print(f"# TRAIN RESULTs")        
-        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f}")
-        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f}")
-        
-        
-        # draw training_loss graph
+        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
+        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
+                
+        # Draw training_loss graph
         indices = []
         buffer_min = []
         buffer_max = []
@@ -226,6 +223,7 @@ class Trainer:
             buffer_max.append(train_loss['max'])
             buffer_avg.append(train_loss['avg'])
         
+        plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
         plt.plot(indices, buffer_avg, 'g', label='Loss(avg)')
         plt.plot(indices, buffer_max, 'b', label='Loss(max)')
@@ -235,11 +233,44 @@ class Trainer:
         plt.ylabel('Loss')
         plt.title('Training Loss')
         
-        plt.xticks(range(min(indices), max(indices)+1, 1))
+        plt.xticks(range(min(indices), max(indices)+1, 1), fontsize=5)
         
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
+        # Extract average value from list
+        valid_psnr_avg_data = [item['avg'] for item in self.valid_psnr_data]
+        valid_ssim_avg_data = [item['avg'] for item in self.valid_ssim_data]
+
+        # Draw PSNR & SSIM graph
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+
+        # PSNR
+        ax1.plot(range(min(indices), max(indices)+1, 1), valid_psnr_avg_data, 'r', label='PSNR')
+        ax1.set_xlabel('Epoch')
+        ax1.set_ylabel('PSNR', color='r')
+
+        # SSIM
+        ax2 = ax1.twinx()
+        ax2.plot(range(min(indices), max(indices)+1, 1), valid_ssim_avg_data, 'b', label='SSIM')
+        ax2.set_ylabel('SSIM', color='b', rotation=-90, labelpad=15)
+
+        ax1.set_xticks(range(min(indices), max(indices)+1, 1))
+        ax1.set_xticklabels(range(min(indices), max(indices)+1, 1), fontsize=5)
+
+        plt.title('Average of PSNR & SSIM')
+
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc='upper left')
+
+        plt.savefig(os.path.join(self.exp_dir, 'psnr_ssim_average.png'))
+
         elapsed_time = time() - self.start_time
         hours, remainder = divmod(elapsed_time, 3600)
         minutes, seconds = divmod(remainder, 60)
         print(f"# elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s")
+
+        with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
+            f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s\n")
+            f.write(f"# PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})\n")
+            f.write(f"# SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})\n")

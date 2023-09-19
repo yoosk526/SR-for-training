@@ -43,7 +43,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = get_args_parser().parse_args()
-    # print(args)
     main(args)
-    
-# python train.py --data-path ../DIV2K --preload --file-check --batch-size 16 --model abpn --device cpu
