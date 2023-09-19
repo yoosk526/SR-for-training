@@ -8,7 +8,7 @@ def _make_pair(value):
         value = (value,) * 2
     return value
 
-
+# 입력과 출력의 크기를 같게 만드는 padding size를 정의한 합성곱 신경망 함수
 def conv_layer(in_channels,
                out_channels,
                kernel_size:int,
@@ -80,7 +80,7 @@ def sequential(*args):
             modules.append(module)
     return nn.Sequential(*modules)
 
-
+# [*, C x r^2, H, W] -> [*, C, H x r, W x r]
 def pixelshuffle_block(in_channels,
                        out_channels,
                        upscale_factor=2,
@@ -88,6 +88,8 @@ def pixelshuffle_block(in_channels,
     """
     Upsample features according to `upscale_factor`.
     """
+    # [*, C, H, W] -> [*, C x r^2, H, W]
+    # nn.PixelShuffle이 출력 채널을 r^2로 나누기 때문에 미리 늘려 놓는다.
     conv = conv_layer(in_channels,
                       out_channels * (upscale_factor ** 2),
                       kernel_size)
@@ -99,25 +101,22 @@ class ESA(nn.Module):
     """
     Modification of Enhanced Spatial Attention (ESA), which is proposed by 
     `Residual Feature Aggregation Network for Image Super-Resolution`
-    Note: `conv_max` and `conv3_` are NOT used here, so the corresponding codes
-    are deleted.
     """
-
     def __init__(self, esa_channels, n_feats, conv):
         super(ESA, self).__init__()
         f = esa_channels
         self.conv1 = conv(n_feats, f, kernel_size=1)
         self.conv_f = conv(f, f, kernel_size=1)
-        self.conv2 = conv(f, f, kernel_size=3, stride=2, padding=0)
-        self.conv3 = conv(f, f, kernel_size=3, padding=1)
-        self.conv4 = conv(f, n_feats, kernel_size=1)
+        self.conv2 = conv(f, f, kernel_size=3, stride=2, padding=0)     # [f, N, N] -> [f, (N-k+2p)/s + 1, (N-k+2p)/s + 1]
+        self.conv3 = conv(f, f, kernel_size=3, padding=1)               # Same size
+        self.conv4 = conv(f, n_feats, kernel_size=1)                    # Change only # of channel
         self.sigmoid = nn.Sigmoid()
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         c1_ = (self.conv1(x))
         c1 = self.conv2(c1_)
-        v_max = F.max_pool2d(c1, kernel_size=7, stride=3)
+        v_max = F.max_pool2d(c1, kernel_size=7, stride=3)   # [f, N, N] -> [f, (N-k)/s + 1, (N-k)/s + 1]
         c3 = self.conv3(v_max)
         c3 = F.interpolate(c3, (x.size(2), x.size(3)),
                            mode='bilinear', align_corners=False)
@@ -131,7 +130,6 @@ class RLFB(nn.Module):
     """
     Residual Local Feature Block (RLFB).
     """
-
     def __init__(self,
                  in_channels,
                  mid_channels=None,
