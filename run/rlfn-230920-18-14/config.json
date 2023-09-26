@@ -2,7 +2,7 @@
     "data_path": "/workspace/dataset/visdrone",
     "preload": true,
     "file_check": false,
-    "batch_size": 16,
+    "batch_size": 64,
     "hr_size": 256,
     "lr_size": 64,
     "workers": 8,
