@@ -1,6 +1,7 @@
 from .rlfn import RLFN
 from .rlfn_s import RLFN_S
 from .abpn import ABPN
+from .AsConvSR import AsConvSR
 
 def get_model(args):
     model = args.model
@@ -15,3 +16,6 @@ def get_model(args):
     
     if model == 'abpn':
         return ABPN(feature=feature, upscale_ratio=upscale)
+
+    if model == 'AsConvSR':
+        return AsConvSR(feature_channels=feature, upscale=upscale)
