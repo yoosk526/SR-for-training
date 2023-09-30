@@ -1,0 +1,20 @@
+{
+    "data_path": "/workspace/dataset/visdrone",
+    "preload": true,
+    "file_check": false,
+    "batch_size": 32,
+    "hr_size": 256,
+    "lr_size": 64,
+    "workers": 8,
+    "model": "abpn",
+    "feature": null,
+    "load": "run/abpn-230930-22-20/weights/abpn_final.pth",
+    "loss": "l1",
+    "optimizer": "adam",
+    "lr": 0.001,
+    "epochs": 100,
+    "step": 20,
+    "gamma": 0.2,
+    "save_interval": 10,
+    "device": "cuda"
+}
