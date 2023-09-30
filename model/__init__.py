@@ -18,4 +18,4 @@ def get_model(args):
         return ABPN(feature=feature, upscale_ratio=upscale)
 
     if model == 'AsConvSR':
-        return AsConvSR(feature_channels=feature, upscale=upscale)
+        return AsConvSR(scale_factor=upscale)
