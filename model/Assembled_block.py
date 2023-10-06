@@ -77,12 +77,21 @@ class AssembledBlock(nn.Module):
         weight3 = self.weight3.view(self.E, self.out_channels, -1) # E, out_channels, in_channels // groups * k * k
         x = x.view(1, bs * in_channels, h, w) # 1, bs * in_channels, h, w
         
+        print(weight1.shape)
+        print(weight2.shape)
+        print(weight3.shape)        
+
         aggregate_weight1 = torch.zeros(bs, self.out_channels, self.in_channels // self.groups, self.kernel_size, 
                                         self.kernel_size) # bs, out_channels, in_channels // groups, k, k
         aggregate_weight2 = torch.zeros(bs, self.out_channels, self.out_channels // self.groups, self.kernel_size,
                                         self.kernel_size) # bs, out_channels, in_channels // groups, k, k
         aggregate_weight3 = torch.zeros(bs, self.out_channels, self.out_channels // self.groups, self.kernel_size,
                                         self.kernel_size) # bs, out_channels, in_channels // groups, k, k
+        
+        print(aggregate_weight1.shape)
+        print(aggregate_weight2.shape)
+        print(aggregate_weight3.shape)
+
         if self.bias:
             aggregate_bias1 = torch.zeros(bs, self.out_channels) # bs, out_channels
             aggregate_bias2 = torch.zeros(bs, self.out_channels) # bs, out_channels
@@ -94,6 +103,10 @@ class AssembledBlock(nn.Module):
             sub_weight2 = weight2[:, i, :] # E, in_channels // groups * k * k
             sub_weight3 = weight3[:, i, :] # E, in_channels // groups * k * k
             
+            print(sub_weight1.shape)
+            print(sub_weight2.shape)
+            print(sub_weight3.shape)
+
             sub_aggregate_weight1 = torch.mm(sub_coeff, sub_weight1) # bs, in_channels // groups * k * k
             aggregate_weight1[:, i, :, :, :] = sub_aggregate_weight1.view(bs, self.in_channels // self.groups, 
                                                                           self.kernel_size, self.kernel_size)
@@ -106,6 +119,8 @@ class AssembledBlock(nn.Module):
             aggregate_weight3[:, i, :, :, :] = sub_aggregate_weight3.view(bs, self.out_channels // self.groups,
                                                                           self.kernel_size, self.kernel_size)
             
+            print(sub_aggregate_weight1.shape)
+
             if self.bias:
                 aggregate_bias1[:, i] = torch.mm(sub_coeff, self.bias1[:, i].view(self.E, 1)).view(bs)  # bs
                 aggregate_bias2[:, i] = torch.mm(sub_coeff, self.bias2[:, i].view(self.E, 1)).view(bs)  # bs
@@ -117,6 +132,8 @@ class AssembledBlock(nn.Module):
                                                    self.kernel_size, self.kernel_size)  # bs * out_channels, in_channels // groups, h, w
         aggregate_weight3 = aggregate_weight3.view(bs * self.out_channels, self.out_channels // self.groups,
                                                    self.kernel_size, self.kernel_size)  # bs * out_channels, in_channels // groups, h, w
+        print(aggregate_weight1.shape)
+
         if self.bias:
             aggregate_bias1 = aggregate_bias1.view(bs * self.out_channels) # bs * out_channels
             aggregate_bias2 = aggregate_bias2.view(bs * self.out_channels) # bs * out_channels
@@ -127,25 +144,31 @@ class AssembledBlock(nn.Module):
         
         out = F.conv2d(x, weight=aggregate_weight1, bias=aggregate_bias1, stride=self.stride, padding=self.padding, 
                        groups=self.groups * bs)   # bs * out_channels, in_channels // groups, h, w
+        print(out.shape)
         out = F.conv2d(out, weight=aggregate_weight2, bias=aggregate_bias2, stride=self.stride, padding=self.padding,
                        groups=self.groups * bs)  # bs * out_channels, in_channels // groups, h, w
+        print(out.shape)
         out = F.conv2d(out, weight=aggregate_weight3, bias=aggregate_bias3, stride=self.stride, padding=self.padding,
                        groups=self.groups * bs)  # bs * out_channels, in_channels // groups, h, w
+        print(out.shape)
         out = out.view(bs, self.out_channels, out.shape[2], out.shape[3])
-        
+        print(out.shape)
+
         return out
     
 
 def test_control_module():
-    x = torch.randn(1, 32, 64, 64)
-    net = ControlModule(32, 64)
+    x = torch.randn(1, 32, 160, 90)
+    net = ControlModule(32, 32)
     print(net(x).shape)
 
 
 def test_assembled_block():
-    x = torch.randn(2, 32, 64, 64)
-    net = AssembledBlock(32, 64, 3, 1, 1, groups=1)
+    x = torch.randn(2, 32, 160, 90)
+    net = AssembledBlock(32, 32, 3, 1, 1, groups=1)
     print(net(x).shape)
     
 if __name__ == '__main__':
+    test_control_module()
+    print("------")
     test_assembled_block()
