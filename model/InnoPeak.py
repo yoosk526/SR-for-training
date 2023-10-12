@@ -1,74 +1,51 @@
 import torch
 import torch.nn as nn
-from collections import OrderedDict
+import InnoPeak_block
 
-# Make integer a tuple type
-def _make_pair(value):
-    if isinstance(value, int):
-        value = (value,) * 2
-    return value
+class InnoPeak(nn.Module):
+    def __init__(self,
+                 in_channels=3,
+                 knot_channels=27,
+                 mid_channels=32,
+                 out_channels=3,
+                 upscale=3):
+        super(InnoPeak, self).__init__()
 
-# CNN function that padding size that equalizes the size of the I/O
-def conv_layer(in_channels,
-               out_channels,
-               kernel_size,
-               bias=True):
-    
-    kernel_size = _make_pair(kernel_size)
-    padding = (int((kernel_size[0] - 1) / 2),
-               int((kernel_size[1] - 1) / 2))
-    
-    return nn.Conv2d(in_channels,
-                     out_channels,
-                     kernel_size,
-                     padding=padding,
-                     bias=bias)
+        if knot_channels is None:
+            knot_channels = 27
+        if mid_channels is None:
+            mid_channels = 32
 
-# Activation function for "ReLU, LeakyReLU, PReLU"
-def activation(act_type, inplace=True, neg_slope=0.05, n_prelu=1):
-    act_type = act_type.lower()
-    
-    if act_type == 'relu':
-        layer = nn.ReLU(inplace)
-    elif act_type == 'lrelu':
-        layer = nn.LeakyReLU(neg_slope, inplace)
-    elif act_type == 'prelu':
-        layer = nn.PReLU(num_parameters=n_prelu, init=neg_slope)
-    else:
-        raise NotImplementedError(
-            'activation layer [{:s}] is not found'.format(act_type))
-    return layer
+        self.c1 = InnoPeak_block.basic_conv(in_channels, knot_channels, 3)
+        self.c2 = InnoPeak_block.basic_conv(knot_channels, mid_channels, 3)
+        self.c3 = InnoPeak_block.basic_conv(mid_channels, mid_channels, 3)
+        self.c4 = InnoPeak_block.basic_conv(mid_channels, knot_channels, 3)
 
-# Modules will be added to the a Sequential Container in the order the are passed
-def sequential(*args):
-    if len(args) == 1:
-        if isinstance(args[0], OrderedDict):
-            raise NotImplementedError(
-                'sequential does not support OrderedDict input.')
-        return args[0]
-    
-    modules = []
-    for module in args:
-        if isinstance(module, nn.Sequential):
-            for submodule in module.children():
-                modules.append(submodule)
-        elif isinstance(module, nn.Module):
-            modules.append(module)
-    
-    return nn.Sequential(*modules)
+        self.upsampler = InnoPeak_block.pixelshuffle_block(knot_channels,
+                                            out_channels,
+                                            upscale_factor=upscale)
+        
+    def forward(self, x:torch.Tensor):
+        out_c1 = self.c1(x)
 
-# def 
+        out_c2 = self.c2(out_c1)
 
+        out_c3_a = self.c3(out_c2)
+        out_sum_A = out_c2 + self.c3(out_c3_a)
 
+        out_c3_c = self.c3(out_sum_A)
+        out_sum_B = out_sum_A + self.c3(out_c3_c)
+
+        out_feature = out_c1 + self.c4(out_sum_B)
+
+        output = self.upsampler(out_feature).clamp(0, 1)
+
+        return output
 
 
 if __name__ == "__main__":
-    lr_input = torch.randn(1, 3, 320, 320)
-    conv = conv_layer(3, 3, 3)
-    print(conv)
-
-    act = activation('RELU')
-    print(act)
-    # sr_output = net(lr_input)
-    # print(net)
-    # print(f"sr_output = {sr_output.shape}")
+    net = InnoPeak().train()
+    lr_input = torch.randn(1, 3, 64, 64)
+    sr_output = net(lr_input)
+    print(net)
+    print(f"sr_output = {sr_output.shape}")
