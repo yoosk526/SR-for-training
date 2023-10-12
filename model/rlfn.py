@@ -44,5 +44,6 @@ class RLFN(nn.Module):
         
         out_low_resolution = self.conv_2(out_b6) + out_feature
         output = self.upsampler(out_low_resolution)
+        output.clamp(0, 1)
 
         return output
