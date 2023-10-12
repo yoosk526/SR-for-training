@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from model import rlfn_block
+import rlfn_block
         
 class RLFN(nn.Module):
     def __init__(self,
@@ -47,3 +47,11 @@ class RLFN(nn.Module):
         output.clamp(0, 1)
 
         return output
+    
+
+if __name__ == "__main__":
+    net = RLFN().train()
+    lr_input = torch.randn(1, 3, 64, 64)
+    sr_output = net(lr_input)
+    print(net)
+    print(f"sr_output = {sr_output.shape}")
