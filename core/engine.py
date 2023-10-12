@@ -13,7 +13,6 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm import tqdm
 from data.dataset import get_dataloader
 from model import get_model
-from model.cslr import CosineAnnealingWarmUpRestarts
 from utils.metric import AverageMeter
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
         structural_similarity_index_measure
