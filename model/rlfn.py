@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import rlfn_block
+from model import rlfn_block
         
 class RLFN(nn.Module):
     def __init__(self,
