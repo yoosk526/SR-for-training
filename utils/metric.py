@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 
 class AverageMeter:
     def __init__(self):
@@ -12,9 +13,11 @@ class AverageMeter:
         self.count = 0.0
     
     def update(self, value, n=1):
-        if isinstance(value, torch.Tensor):     # value가 torch.Tensor 객체이면
-            value = value.item()                # Tensor에 들어있는 값을 꺼내온다. 이때 Tensor 안에는 하나의 원소만 있어야 한다.
-        value = float(value)                    # Type : torch.Tensor -> float
+        if isinstance(value, torch.Tensor):     
+            # Tensor에 들어있는 값을 꺼내온다. 
+            # 이때 Tensor 안에는 하나의 원소만 있어야 한다.
+            value = value.item()
+        value = float(value)                    
         
         self.data.append(value)
         self.val = value
