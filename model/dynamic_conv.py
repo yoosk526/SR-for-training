@@ -49,7 +49,7 @@ class DynamicConv(nn.Module):
         self.groups=grounps
         self.bias=bias
         self.K=K
-        self.init_weight=init_weight
+        #self.init_weight=init_weight
         self.attention=Attention(in_planes=in_planes,ratio=ratio,K=K,temprature=temprature,init_weight=init_weight)
 
         self.weight=nn.Parameter(torch.randn(K,out_planes,in_planes//grounps,kernel_size,kernel_size),requires_grad=True)
@@ -58,7 +58,7 @@ class DynamicConv(nn.Module):
         else:
             self.bias=None
         
-        if(self.init_weight):
+        if(init_weight):
             self._initialize_weights()
 
         #TODO 初始化
