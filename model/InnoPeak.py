@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import InnoPeak_block
+from model import InnoPeak_block
 
 class InnoPeak(nn.Module):
     def __init__(self,
