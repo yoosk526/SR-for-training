@@ -35,7 +35,7 @@ class ABPN(nn.Module):
         self,
         feature:int=49,
         rep:int=4,
-        upscale_ratio:int=4
+        upscale:int=4
     ) -> None:
         super().__init__()
 
@@ -43,7 +43,7 @@ class ABPN(nn.Module):
             feature = 49    # DEFAULT
 
         assert rep > 2      # rep가 2보다 작으면 AssertionError 발생, 뒤에 콤마을 적은뒤 메시지를 입력 가능
-        self.upscale_ratio = upscale_ratio
+        self.upscale = upscale
         self.stem = basicConv(
             3, feature, 
         )
@@ -54,16 +54,16 @@ class ABPN(nn.Module):
                     feature, feature
                 )
             )
-        buffer.append(basicConv(feature, 3*upscale_ratio**2, act=True))
-        buffer.append(basicConv(3*upscale_ratio**2, 3*upscale_ratio**2, act=False))
-        # buffer.append(nn.Conv2d(3*upscale_ratio**2, 3*upscale_ratio**2, 3, 1, 1))
+        buffer.append(basicConv(feature, 3*upscale**2, act=True))
+        buffer.append(basicConv(3*upscale**2, 3*upscale**2, act=False))
+        # buffer.append(nn.Conv2d(3*upscale**2, 3*upscale**2, 3, 1, 1))
         self.body = nn.Sequential(*buffer)      # "*" : Unpacking
         
-        self.pixel_shuffle = nn.PixelShuffle(upscale_ratio)
+        self.pixel_shuffle = nn.PixelShuffle(upscale)
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         residual = x        # (1, 3, H, W)
-        residual = torch.cat([residual for _ in range(self.upscale_ratio**2)], dim=1)      # (1, 3 * upscale_ratio**2, H, W)
+        residual = torch.cat([residual for _ in range(self.upscale**2)], dim=1)      # (1, 3 * upscale**2, H, W)
         x = self.stem(x)
         x = self.body(x)
         x += residual

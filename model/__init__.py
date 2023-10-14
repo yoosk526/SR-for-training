@@ -1,6 +1,7 @@
 from .rlfn import RLFN
 from .rlfn_s import RLFN_S
 from .abpn import ABPN
+from .InnoPeak import InnoPeak
 
 def get_model(args):
     model = args.model
@@ -14,4 +15,7 @@ def get_model(args):
         return RLFN_S(feature_channels=feature, upscale=upscale)
     
     if model == 'abpn':
-        return ABPN(feature=feature, upscale_ratio=upscale)
+        return ABPN(feature=feature, upscale=upscale)
+    
+    if model == 'innopeak':
+        return InnoPeak(upscale=upscale)
