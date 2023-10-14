@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from Assembled_block import AssembledBlock
+from .Assembled_block import AssembledBlock
 
 class AsConvSR(nn.Module):
     def __init__(
