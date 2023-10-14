@@ -1,7 +1,7 @@
 from .rlfn import RLFN
 from .rlfn_s import RLFN_S
 from .abpn import ABPN
-from .InnoPeak import InnoPeak
+from .innopeak import InnoPeak
 
 def get_model(args):
     model = args.model

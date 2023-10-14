@@ -14,7 +14,7 @@ from tqdm import tqdm
 from data.dataset import get_dataloader
 from model import get_model
 from utils.metric import AverageMeter
-from utils import InnoPeak_loss
+from utils import innopeak_loss
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
         structural_similarity_index_measure
 
@@ -65,7 +65,7 @@ class Trainer:
         elif args.loss == 'l2':
             return nn.MSELoss()     # 평균 제곱 오차
         elif args.loss == 'inno_loss':
-            return InnoPeak_loss()
+            return innopeak_loss.InnoPeak_loss()
 
     def get_optimizer(self, args):
         if args.optimizer == 'adam':

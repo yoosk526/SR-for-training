@@ -7,6 +7,7 @@ import torch.onnx
 import onnx
 from model import abpn
 from model import rlfn
+from model import innopeak
 from onnx import shape_inference
 
 ROOT = os.getcwd()
@@ -64,9 +65,10 @@ def main(args):
     model = args.model
     if model == 'rlfn':
         model = rlfn.RLFN()
-    
-    if model == 'abpn':
+    elif model == 'abpn':
         model = abpn.ABPN()
+    elif model == 'innopeak':
+        model = innopeak.InnoPeak()
     
     model.load_state_dict(torch.load(ins_dir))
 
