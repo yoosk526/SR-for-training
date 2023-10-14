@@ -86,8 +86,8 @@ class DynamicConv(nn.Module):
 
     def forward(self,x):
         bs,in_planes,h,w = x.shape
-        x = x.view(1,-1,h,w)                # (B, C, H, W)
         softmax_att = self.attention(x)     # (B, K)
+        x = x.view(1,-1,h,w)                # (B, C, H, W)
         weight = self.weight.view(self.K, -1)  # K,-1
         aggregate_weight = torch.mm(softmax_att, weight).view(bs*self.out_planes, self.in_planes//self.groups, self.kernel_size, self.kernel_size)  # (B*out, in, k, k)
 
@@ -103,6 +103,6 @@ class DynamicConv(nn.Module):
 
 if __name__ == '__main__':
     input = torch.randn(2,32,64,64)
-    m = DynamicConv(in_planes=32,out_planes=64,kernel_size=3,stride=1,padding=1,bias=False)
+    m = DynamicConv(in_planes=32,out_planes=32,kernel_size=3,stride=1,padding=1,bias=False)
     out = m(input)
     print(out.shape)
