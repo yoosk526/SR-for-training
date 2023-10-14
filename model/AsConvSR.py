@@ -8,7 +8,7 @@ class AsConvSR(nn.Module):
         self,
         scale_factor:int=2,
         device=torch.device('cpu')
-    ):
+        ):
         super().__init__()
         self.pixelUnShuffle = nn.PixelUnshuffle(scale_factor)
         self.conv1 = nn.Conv2d(3*scale_factor**2, 32, kernel_size=3, stride=1, padding=1)
