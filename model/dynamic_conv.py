@@ -69,9 +69,20 @@ class DynamicConv(nn.Module):
     def forward(self,x):
         bs,in_planels,h,w=x.shape
         softmax_att=self.attention(x) #bs,K
+
+        print(softmax_att.shape)
+
         x=x.view(1,-1,h,w)
+
+        print(x.shape)
+
         weight=self.weight.view(self.K,-1) #K,-1
+        
+        print(weight.shape)
+
         aggregate_weight=torch.mm(softmax_att,weight).view(bs*self.out_planes,self.in_planes//self.groups,self.kernel_size,self.kernel_size) #bs*out_p,in_p,k,k
+        
+        print(aggregate_weight.shape)
 
         if(self.bias is not None):
             bias=self.bias.view(self.K,-1) #K,out_p
@@ -81,6 +92,9 @@ class DynamicConv(nn.Module):
             output=F.conv2d(x,weight=aggregate_weight,bias=None,stride=self.stride,padding=self.padding,groups=self.groups*bs,dilation=self.dilation)
         
         output=output.view(bs,self.out_planes,h,w)
+        
+        print(output.shape)
+
         return output
 
 if __name__ == '__main__':
