@@ -26,9 +26,9 @@ class AsConvDy(nn.Module):
         out = self.conv1(out)               # (B, 32, H/2, W/2)
         out = self.assemble(out)            # (B, 32, H/2, W/2)
         out = self.conv2(out)               # (B, 48, H/2, W/2)
-        out = self.pixelShuffle(out)        # (B, 12, H, W)
+        #out = self.pixelShuffle(out)        # (B, 12, H, W)
 
-        out = torch.add(out, residual)
+        out = torch.add(residual, out)
         out = self.pixelShuffle(out)        # (B, 3, H, W)
         
         return out
