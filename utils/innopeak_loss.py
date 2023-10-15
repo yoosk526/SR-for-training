@@ -12,7 +12,7 @@ class InnoPeak_loss(nn.Module):
         self.vgg_lambda = 0.3
 
     def _perceptual_loss(self, input, target):
-        vgg = models.vgg19(pretrained=True)
+        vgg = models.vgg19(weights=models.VGG19_Weights.DEFAULT)
         vgg19 = nn.Sequential(*list(vgg.features[:28]))
         pc_loss = nn.L1Loss()(vgg19(input), vgg19(target))
         return pc_loss
