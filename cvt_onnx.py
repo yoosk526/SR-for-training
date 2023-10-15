@@ -7,6 +7,7 @@ import torch.onnx
 import onnx
 from model import abpn
 from model import rlfn
+from model import asconvdy
 from onnx import shape_inference
 
 ROOT = os.getcwd()
@@ -66,6 +67,9 @@ def main(args):
     
     if model == 'abpn':
         model = abpn.ABPN()
+
+    if model == 'asconvdy':
+        model = asconvdy.AsConvDy()
     
     model.load_state_dict(torch.load(ins_dir))
 
