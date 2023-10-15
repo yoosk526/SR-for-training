@@ -6,7 +6,7 @@
     "hr_size": 128,
     "lr_size": 64,
     "workers": 8,
-    "model": "AsConvDy",
+    "model": "asconvdy",
     "feature": null,
     "load": null,
     "loss": "l1",
