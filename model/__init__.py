@@ -22,4 +22,4 @@ def get_model(args):
         return AsConvSR(scale_factor=upscale)
 
     if model == 'AsConvDy':
-        return AsConvDy(scale_factor=upscale)
+        return AsConvDy(scale_factor=2)

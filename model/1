@@ -20,25 +20,25 @@ class AsConvDy(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x                    # (B, 3, H, W)
-        #print(residual.shape)
+        print(residual.shape)
         residual = torch.cat([residual for _ in range(self.scale_factor**2)], dim=1)      # (B, 3 * scale_factor**2, H, W)
-        #print(residual.shape)
+        print(residual.shape)
     
         out = self.pixelUnShuffle(x)      # (B, 3, H, W) -> (B, 12, H/2, W/2)
-        #print(out.shape)
+        print(out.shape)
         out = self.conv1(out)               # (B, 32, H/2, W/2)
-        #print(out.shape)
+        print(out.shape)
         out = self.assemble(out)            # (B, 32, H/2, W/2)
-        #print(out.shape)
+        print(out.shape)
         out = self.conv2(out)               # (B, 48, H/2, W/2)
-        #print(out.shape)
+        print(out.shape)
         out = self.pixelShuffle(out)        # (B, 12, H, W)
-        #print(out.shape)
+        print(out.shape)
 
-        out = torch.add(out, residual)
-        #print(out.shape)
+        out = torch.add(residual, out)
+        print(out.shape)
         out = self.pixelShuffle(out)        # (B, 3, H, W)
-        #print(out.shape)
+        print(out.shape)
 
         return out
         
