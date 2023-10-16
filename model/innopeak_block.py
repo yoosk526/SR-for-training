@@ -81,7 +81,7 @@ def pixelshuffle_block(in_channels,
                        upscale_factor=3,
                        kernel_size=3):
    
-    # [*, C, H, W] -> [*, C x r^2, H, W]
+    # [*, C, H, W] -> [*, C x r^2, H, W] -> [*, C, H x r, W x r]
     # Increases the output channel in advance
     # Because nn.PixelShuffle divides it by r^2
     conv = conv_layer(in_channels,
