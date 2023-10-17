@@ -19,7 +19,8 @@ def to_tensor(arr: np.ndarray) -> torch.Tensor:
 
     # Normalization
     if arr.dtype == np.uint8:
-        arr = arr.astype(np.float32) / 255.0
+        # arr = arr.astype(np.float32) / 255.0
+        arr = arr.astype(np.float32)
     else:
         arr = arr.astype(np.float32)
 

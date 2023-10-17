@@ -38,7 +38,7 @@ class InnoPeak(nn.Module):
 
         out_feature = out_c1 + self.c4(out_sum_B)
 
-        output = self.upsampler(out_feature).clamp(0, 1)
+        output = self.upsampler(out_feature).clamp(0, 255)
 
         return output
 
