@@ -46,6 +46,7 @@ class Trainer:
         
         self.criterion = self.get_criterion(args)
         self.optimizer, self.scheduler = self.get_optimizer(args)
+        self.momentum = args.momentum
         
         self.device = torch.device(args.device)
         self.epochs = args.epochs
@@ -77,7 +78,7 @@ class Trainer:
             return optimizer, scheduler
         
         elif args.optimizer == 'sgd':
-            optimizer = SGD(self.model.parameters(), lr=args.lr)
+            optimizer = SGD(self.model.parameters(), momentum=self.momentum, lr=args.lr)
             scheduler = StepLR(optimizer, args.step, args.gamma)    # step 마다 lr * gamma를 한다.
             return optimizer, scheduler
     

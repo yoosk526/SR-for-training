@@ -26,6 +26,7 @@ def get_args_parser():
     # training cfg
     parser.add_argument("--loss", type=str, default='l1', choices=['l1', 'l2', 'inno_loss'])
     parser.add_argument("--optimizer", type=str, default='adam', choices=['adam', 'sgd'])
+    parser.add_argument("--momentum", type=float, default=0.9375)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--step", type=int, default=40)
