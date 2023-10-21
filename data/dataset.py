@@ -17,12 +17,16 @@ def to_tensor(arr: np.ndarray) -> torch.Tensor:
     if len(arr.shape) != 3 and len(arr.shape) != 4:
         raise ValueError(f"Input shape must be (H, W, C) or (B, H, W, C). Your shape : {arr.shape}")
 
+    '''
     # Normalization
     if arr.dtype == np.uint8:
-        # arr = arr.astype(np.float32) / 255.0
-        arr = arr.astype(np.float32)
+        arr = arr.astype(np.float32) / 255.0
     else:
         arr = arr.astype(np.float32)
+    '''
+    
+    # Change data type
+    arr = arr.astype(np.float32)
 
     # Change axis
     if len(arr.shape) == 3:
@@ -67,8 +71,8 @@ def check_imgs(img_paths:List[str]):
     
     return valid_img_path
 
-# float=0.8, int=0 -> Default 값
-def split_data(img_paths:List[str], r:float=0.8, seed:int=0):
+# float=0.8, int=1 -> Default 값
+def split_data(img_paths:List[str], r:float=0.8, seed:int=1):
     total_number = len(img_paths)               
     train_number = int(total_number * r)        
     valid_number = total_number - train_number
