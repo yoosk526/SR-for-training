@@ -54,7 +54,6 @@ if __name__ == "__main__":
     BICUBIC_SR_WINDOW = "BICUBIC vs SUPER-RESOLUTION"
 
     cv2.namedWindow(BICUBIC_SR_WINDOW)
-    # cv2.moveWindow(BICUBIC_SR_WINDOW, 800, 300)
 
     bicubic = bicubicResize(openImage(opt.image))
     canvas = horizontalFusion(bicubic, srObj)
