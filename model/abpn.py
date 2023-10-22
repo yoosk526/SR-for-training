@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-# from model.common_block import *
-from common_block import *
+from model.common_block import *
+# from common_block import *
 
 class basicConv(nn.Module):    
     def __init__(self, 
