@@ -18,11 +18,11 @@ def postprocess(x:np.ndarray, norm:bool):
     else:
         x = np.ascontiguousarray(x, dtype=np.uint8).squeeze(0)
     x = np.transpose(x, [1, 2, 0])      # [C, H, W] -> [H, W, C]
+    x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
     return x
 
 def bicubicResize(x:np.ndarray, scale:int=4):
     h, w, _ = x.shape
-    x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
     x = cv2.resize(x, dsize=(w*scale, h*scale), interpolation=cv2.INTER_NEAREST)
     return x
 
@@ -37,7 +37,6 @@ def horizontalFusion(bi:np.ndarray, sr:np.ndarray):
 def openImage(filepath):
     try:
         imgObj = cv2.imread(filepath, cv2.IMREAD_COLOR)
-        imgObj = cv2.cvtColor(imgObj, cv2.COLOR_BGR2RGB)
         return imgObj
     except:
         raise ValueError()

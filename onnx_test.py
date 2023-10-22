@@ -39,4 +39,4 @@ if __name__ == "__main__":
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-    cv2.imwrite(opt.save, srObj)
+    # cv2.imwrite(opt.save, srObj)
