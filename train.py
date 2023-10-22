@@ -20,9 +20,9 @@ def get_args_parser():
     parser.add_argument("--workers", type=int, default=8)
     
     # super-resolution model
-    parser.add_argument("--model", type=str, choices=['rlfn', 'abpn', 'innopeak'], default='rlfn')
+    parser.add_argument("--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn')
     parser.add_argument("--feature", type=int, default=None)    # "None" means use default value
-    parser.add_argument("--load", type=str, default=None)       # 모델의 weight를 로드할 경우 True로 지정
+    parser.add_argument("--load", type=str, default=None)       
     
     # training config
     parser.add_argument("--loss", type=str, default='l1', choices=['l1', 'l2', 'inno_loss'])

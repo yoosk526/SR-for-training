@@ -10,23 +10,18 @@ from multiprocessing import Pool
 from torch.utils.data import Dataset, DataLoader
 
 # Original Color image -> HR : [256 x 256], LR : [64 x 64] & Normalization
-def to_tensor(arr: np.ndarray) -> torch.Tensor:
+def to_tensor(arr: np.ndarray,
+              normalization:bool=False) -> torch.Tensor:
     if not isinstance(arr, np.ndarray):
         raise TypeError(f"Input type must be numpy.ndarray. Your input : {type(arr)}")
 
     if len(arr.shape) != 3 and len(arr.shape) != 4:
         raise ValueError(f"Input shape must be (H, W, C) or (B, H, W, C). Your shape : {arr.shape}")
 
-    '''
-    # Normalization
-    if arr.dtype == np.uint8:
-        arr = arr.astype(np.float32) / 255.0
-    else:
+    if not normalization:
         arr = arr.astype(np.float32)
-    '''
-    
-    # Change data type
-    arr = arr.astype(np.float32)
+    else:
+        arr = arr.astype(np.float32) / 255.0
 
     # Change axis
     if len(arr.shape) == 3:
@@ -91,7 +86,8 @@ def split_data(img_paths:List[str], r:float=0.8, seed:int=1):
 class SR_Dataset(Dataset):
     def __init__(self, 
                  data_paths:list, 
-                 preload:bool=False, 
+                 preload:bool=False,
+                 normalization:bool=False, 
                  train:bool=True, 
                  hr_size:int=256, 
                  lr_size:int=64, 
@@ -100,6 +96,7 @@ class SR_Dataset(Dataset):
         self.length_of_data = len(data_paths)       
         self.workers = workers                     
         self.preload = preload                     
+        self.norm = normalization
         self.data_list = self._preload(data_paths, preload)
         """
             preload = True : pixel values in data_list
@@ -167,8 +164,8 @@ class SR_Dataset(Dataset):
         hr_obj = self.o2hr(image=orig_obj)["image"]
         lr_obj = self.hr2lr(image=hr_obj)["image"]
         
-        hr_tensor = to_tensor(hr_obj)
-        lr_tensor = to_tensor(lr_obj)
+        hr_tensor = to_tensor(hr_obj, self.norm)
+        lr_tensor = to_tensor(lr_obj, self.norm)
         
         return lr_tensor, hr_tensor
 
@@ -176,7 +173,8 @@ class SR_Dataset(Dataset):
 def get_dataloader(root:str,
                    check:bool=False, 
                    split_ratio:float=0.8, 
-                   preload:bool=False, 
+                   preload:bool=False,
+                   normalization:bool=False,
                    batch_size:int=32, 
                    workers:int=8,
                    hr_size:int=256, 

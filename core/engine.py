@@ -28,6 +28,7 @@ class Trainer:
             root=args.data_path,
             check=args.file_check,
             preload=args.preload,
+            normalization=args.normalization,
             batch_size=args.batch_size,
             workers=args.workers,
             hr_size=args.hr_size,
