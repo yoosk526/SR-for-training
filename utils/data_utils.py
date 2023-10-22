@@ -18,7 +18,6 @@ def postprocess(x:np.ndarray, norm:bool):
     else:
         x = np.ascontiguousarray(x, dtype=np.uint8).squeeze(0)
     x = np.transpose(x, [1, 2, 0])      # [C, H, W] -> [H, W, C]
-    x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
     return x
 
 def bicubicResize(x:np.ndarray, scale:int=4):

@@ -13,6 +13,9 @@ parser.add_argument(
 	"--onnx", type=str, default="./onnx/x4_270_480_abpn_006.onnx"
 )
 parser.add_argument(
+	"--save", type=str, default="./media/result/x4_270_480_abpn_00_000.png"
+)
+parser.add_argument(
 	"--scale", type=int, default=4
 )
 parser.add_argument(
@@ -32,7 +35,8 @@ if __name__ == "__main__":
     biObj = bicubicResize(openImage(opt.image))
     canvas = horizontalFusion(biObj, srObj)
     
-    # cv2.imshow("SuperResolution", srObj)
-    cv2.imshow("SuperResolution", canvas)
+    cv2.imshow("Bicubic vs SuperResolution", canvas)
     cv2.waitKey()
     cv2.destroyAllWindows()
+
+    cv2.imwrite(opt.save, srObj)
