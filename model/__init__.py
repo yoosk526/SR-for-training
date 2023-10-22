@@ -16,7 +16,7 @@ def get_model(args):
         return RLFN_S(feature_channels=feature, upscale=upscale)
     
     if model == 'abpn':
-        return ABPN(feature=feature, upscale=upscale, normalization=norm)
+        return ABPN(mid_channels=feature, upscale=upscale, normalization=norm)
     
     if model == 'innopeak':
         return InnoPeak(upscale=upscale)
