@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from model import innopeak_block
+from model.common_block import *
 
 class InnoPeak(nn.Module):
     def __init__(self,
@@ -16,12 +16,12 @@ class InnoPeak(nn.Module):
         if mid_channels is None:
             mid_channels = 32
 
-        self.c1 = innopeak_block.basic_conv(in_channels, knot_channels, 3)
-        self.c2 = innopeak_block.basic_conv(knot_channels, mid_channels, 3)
-        self.c3 = innopeak_block.basic_conv(mid_channels, mid_channels, 3)
-        self.c4 = innopeak_block.basic_conv(mid_channels, knot_channels, 3)
+        self.c1 = basic_conv(in_channels, knot_channels, 3)
+        self.c2 = basic_conv(knot_channels, mid_channels, 3)
+        self.c3 = basic_conv(mid_channels, mid_channels, 3)
+        self.c4 = basic_conv(mid_channels, knot_channels, 3)
 
-        self.upsampler = innopeak_block.pixelshuffle_block(knot_channels,
+        self.upsampler = pixelshuffle_block(knot_channels,
                                             out_channels,
                                             upscale_factor=upscale)
         

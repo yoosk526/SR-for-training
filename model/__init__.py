@@ -7,6 +7,7 @@ def get_model(args):
     model = args.model
     upscale = args.hr_size // args.lr_size
     feature = args.feature
+    norm = args.normalization
     
     if model == 'rlfn':
         return RLFN(feature_channels=feature, upscale=upscale)
@@ -15,7 +16,7 @@ def get_model(args):
         return RLFN_S(feature_channels=feature, upscale=upscale)
     
     if model == 'abpn':
-        return ABPN(feature=feature, upscale=upscale)
+        return ABPN(feature=feature, upscale=upscale, normalization=norm)
     
     if model == 'innopeak':
         return InnoPeak(upscale=upscale)
