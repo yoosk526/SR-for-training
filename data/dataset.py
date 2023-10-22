@@ -192,8 +192,8 @@ def get_dataloader(root:str,
     train_imgs_list, valid_imgs_list = split_data(imgs_list, split_ratio)
 
     # build Dataset
-    train_dataset = SR_Dataset(train_imgs_list, preload, True, hr_size, lr_size, workers)
-    valid_dataset = SR_Dataset(valid_imgs_list, preload, False, hr_size, lr_size, workers)
+    train_dataset = SR_Dataset(train_imgs_list, preload, normalization, True, hr_size, lr_size, workers)
+    valid_dataset = SR_Dataset(valid_imgs_list, preload, normalization, False, hr_size, lr_size, workers)
     
     # build DataLoader
     train_loader = DataLoader(train_dataset, batch_size, shuffle=True, num_workers=workers, persistent_workers=True)
