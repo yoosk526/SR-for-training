@@ -112,7 +112,7 @@ class Trainer:
             self.model.qscheme = torch.per_channel_symmetric
             self.model.quant = qt.QuantStub()
             self.model.dequant = qt.DeQuantStub()
-            self.model = qt.prepare_qat(self.model, inplace=True, quant_min=0.0, quant_max=255.0)
+            self.model = qt.prepare_qat(self.model)
 
         if not os.path.exists("./run"):
             os.makedirs("./run")
