@@ -22,7 +22,8 @@ def get_args_parser():
     # super-resolution model
     parser.add_argument("--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn')
     parser.add_argument("--feature", type=int, default=None)    # "None" means use default value
-    parser.add_argument("--load", type=str, default=None)       
+    parser.add_argument("--load", type=str, default=None)
+    parser.add_argument("--qat", action="store_true")    
     
     # training config
     parser.add_argument("--loss", type=str, default='l1', choices=['l1', 'l2', 'inno_loss'])

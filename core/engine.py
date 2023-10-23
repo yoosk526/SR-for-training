@@ -1,6 +1,7 @@
 import os
 import torch
 import torch.nn as nn
+import torch.quantization as qt
 import shutil   # 파일 및 디렉터리 작업을 수행하기 위한 함수를 제공하는 모듈
 import json
 import matplotlib.pyplot as plt
@@ -35,8 +36,12 @@ class Trainer:
             lr_size=args.lr_size
         )
         # define model
+        self.qat = args.qat
         self.model = get_model(args)
-        self.model_name = args.model
+        if not self.qat:
+            self.model_name = args.model
+        else:
+            self.model_name = args.model + '_QAT'
         
         if args.load is not None:
             try:
@@ -98,6 +103,12 @@ class Trainer:
     
     def _prepare(self):
         self.model.to(self.device)
+        if self.qat == True:
+            self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
+            self.model.quant = qt.QuantStub()
+            self.model.dequant = qt.DeQuantStub()
+            self.model = qt.prepare_qat(self.model)
+
         if not os.path.exists("./run"):
             os.makedirs("./run")
         
@@ -174,14 +185,22 @@ class Trainer:
         if os.path.exists(model_weight_path):
             os.remove(model_weight_path)
         # Dictionary 형태로 저장 -> 나중에 로드할 때는 torch.load(), load_state_dict()를 사용한다.
-        torch.save(self.model.state_dict(), model_weight_path)      
+        if self.qat == True:
+            self.model = qt.convert(self.model)
+            torch.jit.save(torch.jit.script(self.model), model_weight_path)
+        else:
+            torch.save(self.model.state_dict(), model_weight_path)      
         
     def _finish(self):
         # save final model weights
         model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_final.pth")
         if os.path.exists(model_weight_path):
             os.remove(model_weight_path)
-        torch.save(self.model.state_dict(), model_weight_path)
+        if self.qat == True:
+            self.model = qt.convert(self.model)
+            torch.jit.save(torch.jit.script(self.model), model_weight_path)
+        else:
+            torch.save(self.model.state_dict(), model_weight_path) 
         
         # find min/max psnr/ssim value
         psnr_min = 100.0
