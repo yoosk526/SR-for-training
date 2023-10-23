@@ -39,7 +39,7 @@ def to_tensor(arr: np.ndarray) -> torch.Tensor:
 
     # 배열 값을 0~1 사이로 정규화합니다.
     if arr.dtype == np.uint8:
-        arr = arr.astype(np.float32) / 255.0
+        arr = arr.astype(np.float32) #/ 255.0
     else:
         arr = arr.astype(np.float32)
 
