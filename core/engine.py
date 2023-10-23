@@ -19,6 +19,10 @@ from utils import innopeak_loss
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
         structural_similarity_index_measure
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning,
+                        message="_aminmax is deprecated as of PyTorch 1.11")
+
 class Trainer:
     def __init__(self, args):
         # backup args
@@ -105,9 +109,10 @@ class Trainer:
         self.model.to(self.device)
         if self.qat == True:
             self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
+            self.model.qscheme = torch.per_channel_symmetric
             self.model.quant = qt.QuantStub()
             self.model.dequant = qt.DeQuantStub()
-            self.model = qt.prepare_qat(self.model)
+            self.model = qt.prepare_qat(self.model, inplace=True, quant_min=0.0, quant_max=255.0)
 
         if not os.path.exists("./run"):
             os.makedirs("./run")
