@@ -44,5 +44,14 @@ class RLFN(nn.Module):
         
         out_low_resolution = self.conv_2(out_b6) + out_feature
         output = self.upsampler(out_low_resolution)
+        output.clamp(0, 1)
 
         return output
+    
+
+if __name__ == "__main__":
+    net = RLFN().train()
+    lr_input = torch.randn(1, 3, 64, 64)
+    sr_output = net(lr_input)
+    print(net)
+    print(f"sr_output = {sr_output.shape}")
