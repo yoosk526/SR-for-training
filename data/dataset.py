@@ -18,14 +18,8 @@ def to_tensor(arr: np.ndarray,
     if len(arr.shape) != 3 and len(arr.shape) != 4:
         raise ValueError(f"Input shape must be (H, W, C) or (B, H, W, C). Your shape : {arr.shape}")
 
-<<<<<<< HEAD
     # 배열 값을 0~1 사이로 정규화합니다.
-    if arr.dtype == np.uint8:
-        arr = arr.astype(np.float32) #/ 255.0
-    else:
-=======
     if not normalization:
->>>>>>> d7c2f827d92fcb1908891b00ca03c702fabd7c81
         arr = arr.astype(np.float32)
     else:
         arr = arr.astype(np.float32) / 255.0

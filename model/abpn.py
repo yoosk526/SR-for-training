@@ -33,7 +33,7 @@ class basicConv(nn.Module):
 class ABPN(nn.Module):
     def __init__(
         self,
-        mid_feat:int=49,
+        mid_feat:int=12,
         rep:int=4,
         upscale_ratio:int=4,
         norm=False
@@ -41,7 +41,7 @@ class ABPN(nn.Module):
         super().__init__()
 
         if mid_feat is None:
-            mid_feat = 49    # DEFAULT
+            mid_feat = 12    # DEFAULT
         # Raise AssertionError
         assert rep > 2, "Repeat value should be larger than 2"
 

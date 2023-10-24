@@ -248,31 +248,18 @@ class Trainer:
         # Draw training_loss graph
         indices = []
         buffer_min = []
-<<<<<<< HEAD
-        #buffer_max = []
-=======
         # buffer_max = []
->>>>>>> d7c2f827d92fcb1908891b00ca03c702fabd7c81
         buffer_avg = []
         for i, train_loss in enumerate(self.train_loss_data):
             indices.append(i)
             buffer_min.append(train_loss['min'])
-<<<<<<< HEAD
-            #buffer_max.append(train_loss['max'])
-=======
             # buffer_max.append(train_loss['max'])
->>>>>>> d7c2f827d92fcb1908891b00ca03c702fabd7c81
             buffer_avg.append(train_loss['avg'])
         
         plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
-<<<<<<< HEAD
-        plt.plot(indices, buffer_avg, 'g', label='Loss(avg)')
-        #plt.plot(indices, buffer_max, 'b', label='Loss(max)')
-=======
         plt.plot(indices, buffer_avg, 'b', label='Loss(avg)')
         # plt.plot(indices, buffer_max, 'g', label='Loss(max)')
->>>>>>> d7c2f827d92fcb1908891b00ca03c702fabd7c81
         plt.legend(loc='upper right')
         
         plt.xlabel('Epoch')
