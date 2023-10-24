@@ -194,7 +194,8 @@ class Trainer:
             os.remove(model_weight_path)
         # Dictionary 형태로 저장 -> 나중에 로드할 때는 torch.load(), load_state_dict()를 사용한다.
         if self.qat == True:
-            knot_model = self.model.to(self.device).eval()
+            knot_model = self.model.to('cpu')
+            knot_model = knot_model.eval()
             knot_model = qt.convert(knot_model)
             torch.jit.save(torch.jit.script(knot_model), model_weight_path)
             del knot_model
