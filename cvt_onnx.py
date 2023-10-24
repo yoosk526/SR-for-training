@@ -16,13 +16,14 @@ if str(ROOT) not in sys.path:
 
 def get_args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weight_dir", type=str, 
+    parser.add_argument("--weight", type=str, 
                         help='Directory of weight file')
     parser.add_argument("--height", type=int, default=270)
     parser.add_argument("--width", type=int, default=480)
     parser.add_argument("--model", type=str, default='abpn')  
     parser.add_argument("--save_dir", type=str, default='onnx/x4_270_480.onnx')
     parser.add_argument("--scale", type=int, default=4)  
+    parser.add_argument("--qat", action="store_true")  
 
     return parser
 
@@ -59,19 +60,22 @@ def main(args):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Device : {device}\n")
 
-    ins_dir = args.weight_dir
+    ins_dir = args.weight
 
     h, w = args.height, args.width
 
-    model = args.model
-    if model == 'rlfn':
-        model = rlfn.RLFN()
-    elif model == 'abpn':
-        model = abpn.ABPN()
-    elif model == 'innopeak':
-        model = innopeak.InnoPeak(upscale=args.scale)
-    
-    model.load_state_dict(torch.load(ins_dir))
+    if not args.qat:
+        model = args.model
+        if model == 'rlfn':
+            model = rlfn.RLFN()
+        elif model == 'abpn':
+            model = abpn.ABPN()
+        elif model == 'innopeak':
+            model = innopeak.InnoPeak(upscale=args.scale)
+        
+        model.load_state_dict(torch.load(ins_dir))
+    else:
+        model = torch.jit.load(args.weight)
 
     model.to(device)
 
