@@ -22,7 +22,7 @@ from torchmetrics.functional.image import peak_signal_noise_ratio, \
 from pytorch_quantization import quant_modules
 from pytorch_quantization import nn as quant_nn
 from pytorch_quantization.tensor_quant import QuantDescriptor
-from pytorch_quantization.nnmodules.tensor_quantizer import TensorQuantizer
+from pytorch_quantization.nn.modules.tensor_quantizer import TensorQuantizer
 
 # import warnings
 # ignored_warnings = [
