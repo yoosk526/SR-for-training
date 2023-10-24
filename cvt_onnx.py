@@ -38,7 +38,7 @@ def Convert_ONNX(model:nn.Module, input_shape:tuple, name:str, device:torch.devi
     model.eval()
 
     # Let's create a dummy input tensor
-    dummy_input = torch.randn(input_shape, requires_grad=True).to(device)
+    dummy_input = torch.randn(input_shape, requires_grad=True).to(device).detach()
 
     # Export the model
     torch.onnx.export(  model,                     # model being run
