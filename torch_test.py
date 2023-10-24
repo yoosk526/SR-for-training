@@ -44,7 +44,7 @@ if __name__ == "__main__":
             model.load_state_dict(torch.load(opt.weight, map_location=device))
     else:
         model = torch.jit.load(opt.weight)
-        model.cuda()        
+        model.to(device)        
 
     model.eval()
 

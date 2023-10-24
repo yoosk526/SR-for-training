@@ -21,7 +21,7 @@ def get_args_parser():
     parser.add_argument("--height", type=int, default=270)
     parser.add_argument("--width", type=int, default=480)
     parser.add_argument("--model", type=str, default='abpn')  
-    parser.add_argument("--save_dir", type=str, default='onnx/x4_270_480.onnx')
+    parser.add_argument("--save", type=str, default='onnx/x4_270_480.onnx')
     parser.add_argument("--scale", type=int, default=4)  
     parser.add_argument("--qat", action="store_true")  
 
@@ -79,7 +79,7 @@ def main(args):
 
     model.to(device)
 
-    exp_dir = args.save_dir
+    exp_dir = args.save
 
     Convert_ONNX(model, (1, 3, h, w), exp_dir, device)    # (B, C, H, W)
 
