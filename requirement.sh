@@ -12,3 +12,4 @@ apt-get install -y libgl1-mesa-glx
 pip uninstall -y torchvision
 pip install torchvision==0.15.1
 
+pip install ipywidgets --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org
