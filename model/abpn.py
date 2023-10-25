@@ -47,11 +47,11 @@ class ABPN(nn.Module):
         else:
             self.norm = True
         
-        self.shallow = basic_conv(in_channels, mid_channels)
+        self.shallow = basic_conv(in_channels, mid_channels, 3)
         self.deep = []
         for _ in range(repeat-1):
             self.deep.append(
-                basic_conv(mid_channels, mid_channels)
+                basic_conv(mid_channels, mid_channels, 3)
             )
         self.deep.append(conv_layer(mid_channels,
                                     out_channels*upscale**2,
