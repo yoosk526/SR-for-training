@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     imgToTensor = torch.from_numpy(preprocess(openImage(opt.image), opt.norm))
     with torch.no_grad():
-        srObj = model(imgToTensor).detach().numpy().cpu()
+        srObj = model(imgToTensor).detach().numpy()
     srObj = postprocess(srObj, opt.norm)
 
     BICUBIC_SR_WINDOW = "BICUBIC vs SUPER-RESOLUTION"
