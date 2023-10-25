@@ -58,9 +58,7 @@ class ABPN(nn.Module):
                                     kernel_size=3))
         
         self.body = nn.Sequential(*self.deep)
-        self.upsampler = pixelshuffle_block(out_channels*upscale**2,
-                                            out_channels,
-                                            upscale_factor=upscale)
+        self.upsampler = nn.PixelShuffle(upscale_factor=upscale)
 
     def forward(self, x:torch.Tensor) -> torch.Tensor:
         residual = x
