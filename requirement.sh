@@ -11,4 +11,3 @@ apt-get install -y libgl1-mesa-glx
 
 pip uninstall -y torchvision
 pip install torchvision==0.15.1
-
