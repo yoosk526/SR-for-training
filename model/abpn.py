@@ -29,7 +29,7 @@ class basicConv(nn.Module):
 class ABPN(nn.Module):
     def __init__(self,
                  in_channels=3,
-                 mid_channels=49,
+                 mid_channels=12,
                  out_channels=3,
                  repeat:int=5,
                  upscale:int=4,
