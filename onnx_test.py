@@ -3,7 +3,7 @@ import numpy as np
 import argparse
 import onnxruntime as ort
 from utils.data_utils import *
-from model import abpn, rlfn, asconvdy, innopeak
+from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

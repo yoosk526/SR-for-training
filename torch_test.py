@@ -21,35 +21,37 @@ parser.add_argument(
 parser.add_argument(
 	"--norm", action="store_true"
 )
+parser.add_argument(
+	"--qat", action="store_true"
+)
 
 if __name__ == "__main__":
     opt = parser.parse_args()
-
-    model = opt.model
-    if model == 'abpn':
-        model = abpn.ABPN()
-    elif model == 'rlfn':
-        model = rlfn.RLFN()
-    elif model == 'innopeak':
-        model = innopeak.InnoPeak(upscale=opt.scale)
-    print(model)
-
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    if device == 'cuda':
-        model.load_state_dict(torch.load(opt.weight)).cuda()
+
+    if not opt.qat:
+        model = opt.model
+        if model == 'abpn':
+            model = abpn.ABPN()
+        elif model == 'rlfn':
+            model = rlfn.RLFN()
+        elif model == 'innopeak':
+            model = innopeak.InnoPeak(upscale=opt.scale)
+        
+        if device == 'cuda':
+            model.load_state_dict(torch.load(opt.weight)).cuda()
+        else:
+            model.load_state_dict(torch.load(opt.weight, map_location=device))
     else:
-        model.load_state_dict(torch.load(opt.weight, map_location=device))
+        model = torch.jit.load(opt.weight)
+        model.to(device)        
 
     model.eval()
-    print(model)
 
     imgToTensor = torch.from_numpy(preprocess(openImage(opt.image), opt.norm))
-    
     with torch.no_grad():
         srObj = model(imgToTensor).detach().numpy()
-
     srObj = postprocess(srObj, opt.norm)
-    print(srObj)
 
     BICUBIC_SR_WINDOW = "BICUBIC vs SUPER-RESOLUTION"
 
