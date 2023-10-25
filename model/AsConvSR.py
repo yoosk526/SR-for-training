@@ -24,7 +24,7 @@ class AsConvSR(nn.Module):
         x = self.pixelShuffle(x)
         
         residual = x                    # (B, 3, H, W)
-        residual = torch.cat([residual for _ in range(self.scale_factor**2)], dim=1)      # (B, 3 * upscale_ratio**2, H, W)
+        residual = torch.cat([residual for _ in range(self.upscale_ratio**2)], dim=1)      # (B, 3 * upscale_ratio**2, H, W)
         x = torch.add(x, residual)
         x = self.pixelShuffle(x)        # (B, 3, H, W)
         

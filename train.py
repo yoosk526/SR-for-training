@@ -13,19 +13,22 @@ def get_args_parser():
     parser.add_argument("--data-path", type=str, default="../data/DF2K")
     parser.add_argument("--preload", action="store_true")
     parser.add_argument("--file-check", action="store_true")
+    parser.add_argument("--normalization", action="store_true")
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--hr-size", type=int, default=256)
     parser.add_argument("--lr-size", type=int, default=64)
     parser.add_argument("--workers", type=int, default=8)
     
     # super-resolution model
-    parser.add_argument("--model", type=str, choices=['asconvsr', 'asconvdy', 'rlfn', 'rlfn_s', 'abpn'], default='rlfn')
+    parser.add_argument("--model", type=str, choices=['asconvsr', 'asconvdy', 'rlfn', 'rlfn_s', 'abpn'], default='abpn')
     parser.add_argument("--feature", type=int, default=None)    # "None" means use default value
     parser.add_argument("--load", type=str, default=None)       # 모델의 weight를 로드할 경우 True로 지정
-    
+    parser.add_argument("--qat", action="store_true")
+
     # training cfg
     parser.add_argument("--loss", type=str, default='l1', choices=['l1', 'l2'])
     parser.add_argument("--optimizer", type=str, default='adam', choices=['adam', 'sgd'])
+    parser.add_argument("--momentum", type=str, default='adam', choices=['adam', 'sgd'])
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--step", type=int, default=40)

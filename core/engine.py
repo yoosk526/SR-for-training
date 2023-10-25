@@ -1,6 +1,7 @@
 import os
 import torch
 import torch.nn as nn
+import torch.quantization as qt
 import shutil   # 파일 및 디렉터리 작업을 수행하기 위한 함수를 제공하는 모듈
 import json
 import matplotlib.pyplot as plt
@@ -13,10 +14,17 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm import tqdm
 from data.dataset import get_dataloader
 from model import get_model
-from model.cslr import CosineAnnealingWarmUpRestarts
 from utils.metric import AverageMeter
+from utils import innopeak_loss
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
         structural_similarity_index_measure
+import warnings
+ignored_warnings = [
+    "Please use quant_min and quant_max to specify the range for observers",
+    "_aminmax is deprecated as of PyTorch 1.11"
+]
+for warning_message in ignored_warnings:
+    warnings.filterwarnings("ignore", category=UserWarning, message=warning_message)
 
 class Trainer:
     def __init__(self, args):
@@ -28,14 +36,19 @@ class Trainer:
             root=args.data_path,
             check=args.file_check,
             preload=args.preload,
+            normalization=args.normalization,
             batch_size=args.batch_size,
             workers=args.workers,
             hr_size=args.hr_size,
             lr_size=args.lr_size
         )
         # define model
+        self.qat = args.qat
         self.model = get_model(args)
-        self.model_name = args.model
+        if not self.qat:
+            self.model_name = args.model
+        else:
+            self.model_name = args.model + '_QAT'
         
         if args.load is not None:
             try:
@@ -64,6 +77,8 @@ class Trainer:
             return nn.L1Loss()      # 평균 절대 오차
         elif args.loss == 'l2':
             return nn.MSELoss()     # 평균 제곱 오차
+        elif args.loss == 'inno_loss':
+            return innopeak_loss.InnoPeak_loss()
 
     def get_optimizer(self, args):
         if args.optimizer == 'adam':
@@ -75,7 +90,7 @@ class Trainer:
             return optimizer, scheduler
         
         elif args.optimizer == 'sgd':
-            optimizer = SGD(self.model.parameters(), lr=args.lr)
+            optimizer = SGD(self.model.parameters(), momentum=args.momentum, lr=args.lr)
             scheduler = StepLR(optimizer, args.step, args.gamma)    # step 마다 lr * gamma를 한다.
             return optimizer, scheduler
     
@@ -95,6 +110,13 @@ class Trainer:
     
     def _prepare(self):
         self.model.to(self.device)
+        if self.qat == True:
+            self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
+            self.model.qscheme = torch.per_channel_symmetric
+            self.model.quant = qt.QuantStub()
+            self.model.dequant = qt.DeQuantStub()
+            self.model = qt.prepare_qat(self.model)
+
         if not os.path.exists("./run"):
             os.makedirs("./run")
         
@@ -171,14 +193,25 @@ class Trainer:
         if os.path.exists(model_weight_path):
             os.remove(model_weight_path)
         # Dictionary 형태로 저장 -> 나중에 로드할 때는 torch.load(), load_state_dict()를 사용한다.
-        torch.save(self.model.state_dict(), model_weight_path)      
+        if self.qat == True:
+            knot_model = self.model.to('cpu')
+            knot_model = knot_model.eval()
+            knot_model = qt.convert(knot_model)
+            torch.jit.save(torch.jit.script(knot_model), model_weight_path)
+            del knot_model
+        else:
+            torch.save(self.model.state_dict(), model_weight_path)      
         
     def _finish(self):
         # save final model weights
         model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_final.pth")
         if os.path.exists(model_weight_path):
             os.remove(model_weight_path)
-        torch.save(self.model.state_dict(), model_weight_path)
+        if self.qat == True:
+            self.model = qt.convert(self.model)
+            torch.jit.save(torch.jit.script(self.model), model_weight_path)
+        else:
+            torch.save(self.model.state_dict(), model_weight_path) 
         
         # find min/max psnr/ssim value
         psnr_min = 100.0
@@ -215,18 +248,18 @@ class Trainer:
         # Draw training_loss graph
         indices = []
         buffer_min = []
-        #buffer_max = []
+        # buffer_max = []
         buffer_avg = []
         for i, train_loss in enumerate(self.train_loss_data):
             indices.append(i)
             buffer_min.append(train_loss['min'])
-            #buffer_max.append(train_loss['max'])
+            # buffer_max.append(train_loss['max'])
             buffer_avg.append(train_loss['avg'])
         
         plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
-        plt.plot(indices, buffer_avg, 'g', label='Loss(avg)')
-        #plt.plot(indices, buffer_max, 'b', label='Loss(max)')
+        plt.plot(indices, buffer_avg, 'b', label='Loss(avg)')
+        # plt.plot(indices, buffer_max, 'g', label='Loss(max)')
         plt.legend(loc='upper right')
         
         plt.xlabel('Epoch')

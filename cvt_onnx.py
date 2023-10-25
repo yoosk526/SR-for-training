@@ -8,6 +8,7 @@ import onnx
 from model import abpn
 from model import rlfn
 from model import asconvdy
+from model import innopeak
 from onnx import shape_inference
 
 ROOT = os.getcwd()
@@ -70,6 +71,9 @@ def main(args):
 
     if model == 'asconvdy':
         model = asconvdy.AsConvDy()
+    
+    elif model == 'innopeak':
+        model = innopeak.InnoPeak(upscale=args.scale)
     
     model.load_state_dict(torch.load(ins_dir))
 
