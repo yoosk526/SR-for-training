@@ -7,7 +7,6 @@ import torch.onnx
 import onnx
 from model import abpn
 from model import rlfn
-from model import asconvdy
 from model import innopeak
 from onnx import shape_inference
 
@@ -17,12 +16,14 @@ if str(ROOT) not in sys.path:
 
 def get_args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weight_dir", type=str, 
+    parser.add_argument("--weight", type=str, 
                         help='Directory of weight file')
     parser.add_argument("--height", type=int, default=270)
     parser.add_argument("--width", type=int, default=480)
     parser.add_argument("--model", type=str, default='abpn')  
-    parser.add_argument("--save_dir", type=str, default='onnx/x4_270_480.onnx')  
+    parser.add_argument("--save", type=str, default='onnx/x4_270_480.onnx')
+    parser.add_argument("--scale", type=int, default=4)  
+    parser.add_argument("--qat", action="store_true")  
 
     return parser
 
@@ -37,7 +38,7 @@ def Convert_ONNX(model:nn.Module, input_shape:tuple, name:str, device:torch.devi
     model.eval()
 
     # Let's create a dummy input tensor
-    dummy_input = torch.randn(input_shape, requires_grad=True).to(device)
+    dummy_input = torch.randn(input_shape, requires_grad=True).to(device).detach()
 
     # Export the model
     torch.onnx.export(  model,                     # model being run
@@ -45,7 +46,8 @@ def Convert_ONNX(model:nn.Module, input_shape:tuple, name:str, device:torch.devi
                         name,                      # where to save the model
                         export_params=True,        # store the trained parameter weights inside the model file
                         input_names = ['input'],   # the model's input names
-                        output_names = ['output']  # the model's output names
+                        output_names = ['output'], # the model's output names
+                        opset_version = 11
     )
 
     # Add shape to onnx model
@@ -58,28 +60,26 @@ def main(args):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Device : {device}\n")
 
-    ins_dir = args.weight_dir
+    ins_dir = args.weight
 
     h, w = args.height, args.width
 
-    model = args.model
-    if model == 'rlfn':
-        model = rlfn.RLFN()
-    
-    if model == 'abpn':
-        model = abpn.ABPN()
-
-    if model == 'asconvdy':
-        model = asconvdy.AsConvDy()
-    
-    elif model == 'innopeak':
-        model = innopeak.InnoPeak(upscale=args.scale)
-    
-    model.load_state_dict(torch.load(ins_dir))
+    if not args.qat:
+        model = args.model
+        if model == 'rlfn':
+            model = rlfn.RLFN()
+        elif model == 'abpn':
+            model = abpn.ABPN()
+        elif model == 'innopeak':
+            model = innopeak.InnoPeak(upscale=args.scale)
+        
+        model.load_state_dict(torch.load(ins_dir))
+    else:
+        model = torch.jit.load(args.weight)
 
     model.to(device)
 
-    exp_dir = args.save_dir
+    exp_dir = args.save
 
     Convert_ONNX(model, (1, 3, h, w), exp_dir, device)    # (B, C, H, W)
 
