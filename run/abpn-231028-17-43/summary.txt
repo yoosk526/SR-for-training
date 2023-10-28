@@ -1,0 +1,3 @@
+# Elapsed_time = 0hr 31m 43.3s
+# PSNR(min/max) = 22.600 / 29.228 (0 / 96)
+# SSIM(min/max) = 0.64656 / 0.88310 (0 / 99)

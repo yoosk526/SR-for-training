@@ -29,7 +29,7 @@ class basicConv(nn.Module):
 class ABPN(nn.Module):
     def __init__(self,
                  in_channels=3,
-                 mid_channels=49,
+                 mid_channels=96,
                  out_channels=3,
                  repeat:int=5,
                  upscale:int=4,
@@ -37,7 +37,7 @@ class ABPN(nn.Module):
         super().__init__()
 
         if mid_channels is None:
-            mid_channels = 49
+            mid_channels = 96
         # Raise AssertionError 
         assert repeat > 2, "Repeat value should be larger than 2" 
         self.upscale = upscale
