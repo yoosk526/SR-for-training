@@ -266,21 +266,27 @@ class Trainer:
             if current_ssim_max > ssim_max:
                 ssim_max = current_ssim_max
                 ssim_max_indices = i
-        
-        print(f"# TRAIN RESULTs")        
-        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
-        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
-                
+                 
         # Draw training_loss graph
         indices = []
         buffer_min = []
         # buffer_max = []
         buffer_avg = []
+        loss_avg_min = 100.0
+
         for i, train_loss in enumerate(self.train_loss_data):
             indices.append(i)
             buffer_min.append(train_loss['min'])
             # buffer_max.append(train_loss['max'])
             buffer_avg.append(train_loss['avg'])
+            if train_loss['avg'] < loss_avg_min:
+                loss_avg_min = train_loss['avg']
+                loss_avg_min_indices = i
+       
+        print(f"# TRAIN RESULTs")
+        print(f"#\t LOSS(min) = {loss_avg_min:.5f} ({loss_avg_min_indices})")
+        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
+        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
         
         plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
