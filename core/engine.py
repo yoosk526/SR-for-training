@@ -317,6 +317,6 @@ class Trainer:
 
         with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
             f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s\n")
-            f.write(f"#\t Min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})")
-            f.write(f"#\t PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})\n")
-            f.write(f"#\t SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})\n")
+            f.write(f"# Min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})\n")
+            f.write(f"# PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})\n")
+            f.write(f"# SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})\n")
