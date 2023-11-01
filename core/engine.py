@@ -242,7 +242,7 @@ class Trainer:
         # find min/max psnr/ssim value
         psnr_avg = 0.0
         psnr_max = 0.0
-        ssim_avg = 100.0
+        ssim_avg = 0.0
         ssim_max = 0.0
         
         for i, (psnr_data, ssim_data) in enumerate(zip(self.valid_psnr_data, self.valid_ssim_data)):
