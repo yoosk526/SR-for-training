@@ -31,7 +31,7 @@ class ABPN(nn.Module):
                  in_channels=3,
                  mid_channels=49,
                  out_channels=3,
-                 repeat:int=8,
+                 repeat:int=6,
                  upscale:int=4,
                  normalization=False):
         super().__init__()
