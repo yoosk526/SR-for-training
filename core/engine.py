@@ -240,32 +240,32 @@ class Trainer:
             torch.save(self.model.state_dict(), model_weight_path) 
         
         # find min/max psnr/ssim value
-        psnr_min = 100.0
+        psnr_avg = 0.0
         psnr_max = 0.0
-        ssim_min = 100.0
+        ssim_avg = 100.0
         ssim_max = 0.0
         
         for i, (psnr_data, ssim_data) in enumerate(zip(self.valid_psnr_data, self.valid_ssim_data)):
-            current_psnr_min = psnr_data['min']
+            current_psnr_avg = psnr_data['avg']
             current_psnr_max = psnr_data['max']
-            current_ssim_min = ssim_data['min']
+            current_ssim_avg = ssim_data['avg']
             current_ssim_max = ssim_data['max']
             
-            if current_psnr_min < psnr_min:
-                psnr_min = current_psnr_min
-                psnr_min_indices = i
+            if current_psnr_avg > psnr_avg:
+                psnr_avg = current_psnr_avg
+                psnr_avg_indices = i + 1
             
             if current_psnr_max > psnr_max:
                 psnr_max = current_psnr_max
-                psnr_max_indices = i
+                psnr_max_indices = i + 1
             
-            if current_ssim_min < ssim_min:
-                ssim_min = current_ssim_min
-                ssim_min_indices = i
+            if current_ssim_avg > ssim_avg:
+                ssim_avg = current_ssim_avg
+                ssim_avg_indices = i + 1
             
             if current_ssim_max > ssim_max:
                 ssim_max = current_ssim_max
-                ssim_max_indices = i
+                ssim_max_indices = i + 1
                  
         # Draw training_loss graph
         indices = []
@@ -281,12 +281,12 @@ class Trainer:
             buffer_avg.append(train_loss['avg'])
             if train_loss['avg'] < loss_avg_min:
                 loss_avg_min = train_loss['avg']
-                loss_avg_min_indices = i
+                loss_avg_min_indices = i + 1
        
         print(f"# TRAIN RESULTs")
-        print(f"#\t LOSS(min) = {loss_avg_min:.5f} ({loss_avg_min_indices})")
-        print(f"#\t PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})")
-        print(f"#\t SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})")
+        print(f"#\t Min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})")
+        print(f"#\t PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})")
+        print(f"#\t SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})")
         
         plt.figure(figsize=(10, 6))
         plt.plot(indices, buffer_min, 'r', label='Loss(min)')
@@ -337,5 +337,6 @@ class Trainer:
 
         with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
             f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s\n")
-            f.write(f"# PSNR(min/max) = {psnr_min:.3f} / {psnr_max:.3f} ({psnr_min_indices} / {psnr_max_indices})\n")
-            f.write(f"# SSIM(min/max) = {ssim_min:.5f} / {ssim_max:.5f} ({ssim_min_indices} / {ssim_max_indices})\n")
+            f.write(f"#\t Min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})")
+            f.write(f"#\t PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})\n")
+            f.write(f"#\t SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})\n")
