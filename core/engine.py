@@ -53,15 +53,19 @@ class Trainer:
         self.model = get_model(args)
         if not self.qat:
             self.model_name = args.model
+            if args.load is not None:
+                try:
+                    self.model.load_state_dict(torch.load(args.load))
+                except:
+                    print(f"Failed to load weights")
         else:
             self.model_name = args.model + '_QAT'
+             if args.load is not None:
+                try:
+                    self.model = torch.jit.load(args.load)
+                except:
+                    print(f"Failed to load weights")
         
-        if args.load is not None:
-            try:
-                # load_state_dict() : 모델의 가중치(weight) 및 편향(bias) 등을 로드하는 PyTorch 함수
-                self.model.load_state_dict(torch.load(args.load))
-            except:
-                print(f"Failed to load weights")
         
         self.criterion = self.get_criterion(args)
         self.optimizer, self.scheduler = self.get_optimizer(args)
