@@ -1,5 +1,6 @@
 # Learning rate 
 python train.py --preload --lr 0.1 --step 20 --gamma 0.5 --epochs 300
+python train.py --preload --lr 0.05 --step 20 --gamma 0.5 --epochs 300
 python train.py --preload --lr 0.01 --step 20 --gamma 0.5 --epochs 300
 python train.py --preload --lr 0.001 --step 20 --gamma 0.5 --epochs 300
 
