@@ -60,7 +60,7 @@ class Trainer:
                     print(f"Failed to load weights")
         else:
             self.model_name = args.model + '_QAT'
-             if args.load is not None:
+            if args.load is not None:
                 try:
                     self.model = torch.jit.load(args.load)
                 except:
