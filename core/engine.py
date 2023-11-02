@@ -51,16 +51,17 @@ class Trainer:
         # define model
         self.qat = args.qat
         self.model = get_model(args)
-        if not self.qat:
-            self.model_name = args.model
-        else:
-            self.model_name = args.model + '_QAT'
         
         if args.load is not None:
             try:
                 self.model.load_state_dict(torch.load(args.load))
             except:
                 print(f"Failed to load weights")
+        
+        if not self.qat:
+            self.model_name = args.model
+        else:
+            self.model_name = args.model + '_QAT'
         
         
         self.criterion = self.get_criterion(args)
