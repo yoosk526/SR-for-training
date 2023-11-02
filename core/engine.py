@@ -5,6 +5,7 @@ import torch.quantization as qt
 import shutil   # 파일 및 디렉터리 작업을 수행하기 위한 함수를 제공하는 모듈
 import json
 import matplotlib.pyplot as plt
+import pytorch_quantization
 
 from time import time
 from pytz import timezone
@@ -18,13 +19,18 @@ from utils.metric import AverageMeter
 from utils import innopeak_loss
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
         structural_similarity_index_measure
-import warnings
-ignored_warnings = [
-    "Please use quant_min and quant_max to specify the range for observers",
-    "_aminmax is deprecated as of PyTorch 1.11"
-]
-for warning_message in ignored_warnings:
-    warnings.filterwarnings("ignore", category=UserWarning, message=warning_message)
+from pytorch_quantization import quant_modules
+from pytorch_quantization import nn as quant_nn
+from pytorch_quantization.tensor_quant import QuantDescriptor
+from pytorch_quantization.nn.modules.tensor_quantizer import TensorQuantizer
+
+# import warnings
+# ignored_warnings = [
+#     "Please use quant_min and quant_max to specify the range for observers",
+#     "_aminmax is deprecated as of PyTorch 1.11"
+# ]
+# for warning_message in ignored_warnings:
+#     warnings.filterwarnings("ignore", category=UserWarning, message=warning_message)
 
 class Trainer:
     def __init__(self, args):
@@ -109,13 +115,17 @@ class Trainer:
         self._finish()
     
     def _prepare(self):
-        self.model.to(self.device)
         if self.qat == True:
-            self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
-            self.model.qscheme = torch.per_channel_symmetric
-            self.model.quant = qt.QuantStub()
-            self.model.dequant = qt.DeQuantStub()
-            self.model = qt.prepare_qat(self.model)
+            quant_modules.initialize()
+            quant_desc_input = QuantDescriptor(calib_method="max")
+            quant_nn.QuantConv2d.set_default_quant_desc_input(quant_desc_input)
+            quant_nn.QuantConv2d.set_default_quant_desc_weight(quant_desc_input)
+            # self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
+            # self.model.qscheme = torch.per_channel_symmetric
+            # self.model.quant = qt.QuantStub()
+            # self.model.dequant = qt.DeQuantStub()
+            # self.model = qt.prepare_qat(self.model)
+        self.model.to(self.device)
 
         if not os.path.exists("./run"):
             os.makedirs("./run")
@@ -189,19 +199,29 @@ class Trainer:
         del ssim_meter        
     
     def _save_model(self, e:int):
-        model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_{e}.pth")
-        if os.path.exists(model_weight_path):
-            os.remove(model_weight_path)
-        # Dictionary 형태로 저장 -> 나중에 로드할 때는 torch.load(), load_state_dict()를 사용한다.
         if self.qat == True:
-            knot_model = self.model.to('cpu')
-            knot_model = knot_model.eval()
-            knot_model = qt.convert(knot_model)
+            model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_{e}.jit.pth")
+            if os.path.exists(model_weight_path):
+                os.remove(model_weight_path)
+            quant_nn.TensorQuantizer.use_fb_fake_quant = True
+            dummy_input = torch.randint(0, 255, (1, 3, 270, 480)).float().to(self.device)
+            with torch.no_grad():
+                jit_model = torch.jit.trace(self.model, dummy_input)
+                torch.jit.save(jit_model, model_weight_path)
+        else:
+            model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_{e}.pth")
+            if os.path.exists(model_weight_path):
+                os.remove(model_weight_path)
+            # Save as Dictionary -> torch.load(), load_state_dict()
+            torch.save(self.model.state_dict(), model_weight_path)      
+        '''
+        if self.qat == True:
+            # knot_model = self.model.to('cpu')
+            # knot_model = knot_model.eval()
+            # knot_model = qt.convert(knot_model)
             torch.jit.save(torch.jit.script(knot_model), model_weight_path)
             del knot_model
-        else:
-            torch.save(self.model.state_dict(), model_weight_path)      
-        
+        '''
     def _finish(self):
         # save final model weights
         if self.qat == True:
@@ -317,6 +337,6 @@ class Trainer:
 
         with open(os.path.join(self.exp_dir, 'summary.txt'), 'w') as f:
             f.write(f"# Elapsed_time = {int(hours)}hr {int(minutes)}m {seconds:.1f}s\n")
-            f.write(f"#\t Min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})")
-            f.write(f"#\t PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})\n")
-            f.write(f"#\t SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})\n")
+            f.write(f"# min of Average Loss = {loss_avg_min:.5f} ({loss_avg_min_indices})\n")
+            f.write(f"# PSNR(avg/max) = {psnr_avg:.3f} / {psnr_max:.3f} ({psnr_avg_indices} / {psnr_max_indices})\n")
+            f.write(f"# SSIM(avg/max) = {ssim_avg:.5f} / {ssim_max:.5f} ({ssim_avg_indices} / {ssim_max_indices})\n")
