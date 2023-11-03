@@ -272,7 +272,7 @@ class Trainer:
         buffer_min = []
         # buffer_max = []
         buffer_avg = []
-        loss_avg_min = 100.0
+        loss_avg_min = 300.0
 
         for i, train_loss in enumerate(self.train_loss_data):
             indices.append(i)
