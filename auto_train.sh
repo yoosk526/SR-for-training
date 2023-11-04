@@ -6,9 +6,9 @@
 
 # # Step
 # # Epoch, Learning rate 결정되면 코드 돌리기
-python train.py --preload --lr 0.001 --step 10 --gamma 0.5 --epochs 300
-python train.py --preload --lr 0.001 --step 20 --gamma 0.5 --epochs 300
-python train.py --preload --lr 0.001 --step 30 --gamma 0.5 --epochs 300
+# python train.py --preload --lr 0.001 --step 10 --gamma 0.5 --epochs 300
+# python train.py --preload --lr 0.001 --step 20 --gamma 0.5 --epochs 300
+# python train.py --preload --lr 0.001 --step 30 --gamma 0.5 --epochs 300
 python train.py --preload --lr 0.001 --step 40 --gamma 0.5 --epochs 300
 python train.py --preload --lr 0.001 --step 50 --gamma 0.5 --epochs 300
 
