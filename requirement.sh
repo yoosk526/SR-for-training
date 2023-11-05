@@ -1,4 +1,9 @@
 git config --global alias.st status    # git status -> git st
+git config --global user.name "yoosk526"
+git config --global user.email "yoosk526@naver.com"
+git config --global init.defaultBranch main    # "master" -> "main"
+git config --global credential.helper cache
+git remote add origin https://github.com/yoosk526/Training-for-SR.git
 
 pip install ujson    # Loading annotations faster
 pip install torchmetrics
