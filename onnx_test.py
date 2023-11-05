@@ -7,7 +7,7 @@ from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480_01.png"
+	"--image", type=str, default="./media/ori/270_480.png"
 )
 parser.add_argument(
 	"--onnx", type=str, default="./onnx/x4_270_480_abpn_006.onnx"
@@ -40,3 +40,4 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     cv2.imwrite(opt.save, srObj)
+    cv2.imwrite('media/ref/x4_270_480.png', biObj)
