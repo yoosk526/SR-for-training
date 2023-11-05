@@ -7,10 +7,13 @@ from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480_01.png"
+	"--image", type=str, default="./media/ori/270_480.png"
 )
 parser.add_argument(
 	"--weight", type=str, default="./run/abpn-231004-12-47/weights/abpn_final.pth"
+)
+parser.add_argument(
+	"--save", type=str, default="./media/result/x4_270_480.png"
 )
 parser.add_argument(
 	"--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn'
@@ -61,6 +64,8 @@ if __name__ == "__main__":
     canvas = horizontalFusion(bicubic, srObj)
     
     cv2.imshow(BICUBIC_SR_WINDOW, canvas)
+    cv2.imwrite(opt.save, srObj)
 
     cv2.waitKey()
     cv2.destroyAllWindows()
+    
