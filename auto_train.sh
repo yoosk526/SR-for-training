@@ -7,9 +7,9 @@
 END
 
 # Learning rate 
-python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.01 --step 20 --gamma 0.5 --epochs 300
-python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.005 --step 20 --gamma 0.5 --epochs 300
 python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.001 --step 20 --gamma 0.5 --epochs 300
+python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.0005 --step 20 --gamma 0.5 --epochs 300
+python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.0001 --step 20 --gamma 0.5 --epochs 300
 
 # Step
 # python train.py --preload --load run/abpn-231104-22-09/weights/abpn_200.pth --qat --lr 0.001 --step 10 --gamma 0.5 --epochs 300
