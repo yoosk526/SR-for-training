@@ -7,7 +7,7 @@ from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480_05.png"
+	"--image", type=str, default="./media/ori/270_480.png"
 )
 parser.add_argument(
 	"--onnx", type=str, default="./onnx/x4_270_480_abpn_kyj_001.onnx"
