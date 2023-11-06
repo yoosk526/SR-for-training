@@ -1,0 +1,4 @@
+# Elapsed_time = 1hr 20m 5.2s
+# min of Average Loss = 6.56511 (274)
+# PSNR(avg/max) = 26.443 / 29.146 (271 / 139)
+# SSIM(avg/max) = 0.81642 / 0.88224 (275 / 271)
