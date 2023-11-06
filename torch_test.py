@@ -1,16 +1,16 @@
+import cv2
 import torch
 import argparse
 import numpy as np
-import cv2
 from utils.data_utils import *
 from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480.png"
+	"--image", type=str, default="./media/ori/270_480_01.png"
 )
 parser.add_argument(
-	"--weight", type=str, default="./run/abpn-231104-22-09/weights/abpn_final.pth"
+	"--weight", type=str, default="./run/abpn..."
 )
 parser.add_argument(
 	"--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn'
