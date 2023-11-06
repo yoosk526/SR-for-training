@@ -19,7 +19,8 @@ Generally, we recommend using Docker to train. If you have great GPU, you don't 
 ## Dataset
 
 We use VisDrone dataset instead of DIV2K, and it resulted in better image performance.  
-`visdrone_setup.sh` & `rename_move.py` are codes for downloading and arranging the Dataset. (Execute `visdrone_setup.sh` **first**)  
+`visdrone_setup.sh` & `rename_move.py` are codes for downloading and arranging the Dataset.  
+(Execute `visdrone_setup.sh` **first**)  
 
 ### Augmentation methods
 ...
