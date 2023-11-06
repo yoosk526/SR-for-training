@@ -7,13 +7,13 @@ from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480.png"
+	"--image", type=str, default="./media/ori/270_480_01.png"
 )
 parser.add_argument(
-	"--onnx", type=str, default="./onnx/x4_270_480_abpn_006.onnx"
+	"--onnx", type=str, default="./onnx/x4_270_480.onnx"
 )
 parser.add_argument(
-	"--save", type=str, default="./media/result/x4_270_480_abpn_00_000.png"
+	"--save", type=str, default="./media/result/x4_270_480_01.png"
 )
 parser.add_argument(
 	"--scale", type=int, default=4
@@ -40,4 +40,4 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     cv2.imwrite(opt.save, srObj)
-    cv2.imwrite('media/ref/x4_270_480.png', biObj)
+    cv2.imwrite('media/ref/x4_BI_270_480_01.png', biObj)
