@@ -14,18 +14,28 @@ ROOT = os.getcwd()
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
-def get_args_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--weight", type=str, 
-                        help='Directory of weight file')
-    parser.add_argument("--height", type=int, default=270)
-    parser.add_argument("--width", type=int, default=480)
-    parser.add_argument("--model", type=str, default='abpn')  
-    parser.add_argument("--save", type=str, default='onnx/x4_270_480.onnx')
-    parser.add_argument("--scale", type=int, default=4)  
-    parser.add_argument("--qat", action="store_true")  
-
-    return parser
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--weight", type=str, default='run/abpn...'
+)
+parser.add_argument(
+    "--height", type=int, default=270
+)
+parser.add_argument(
+    "--width", type=int, default=480
+)
+parser.add_argument(
+    "--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn'
+)
+parser.add_argument(
+    "--save", type=str, default='onnx/x4_270_480.onnx'
+)
+parser.add_argument(
+    "--scale", type=int, default=4
+)
+parser.add_argument(
+    "--qat", action="store_true"
+)
 
 def Convert_ONNX(model:nn.Module, input_shape:tuple, name:str, device:torch.device):
     if not name.endswith('.onnx'):
@@ -84,5 +94,5 @@ def main(args):
     Convert_ONNX(model, (1, 3, h, w), exp_dir, device)    # (B, C, H, W)
 
 if __name__ == "__main__":
-    args = get_args_parser().parse_args()
+    args = parser.parse_args()
     main(args)
