@@ -90,7 +90,7 @@ class Trainer:
             optimizer = Adam(self.model.parameters(), lr=args.lr)
             # scheduler = StepLR(optimizer, args.step, args.gamma)
             scheduler = CosineAnnealingWarmUpRestarts(
-                optimizer, T_0=args.step, T_mult=1, eta_max=1e-2, T_up=5, gamma=args.gamma
+                optimizer, T_0=args.step, T_mult=1, eta_max=1e-3, T_up=5, gamma=args.gamma
             )
             return optimizer, scheduler
         
