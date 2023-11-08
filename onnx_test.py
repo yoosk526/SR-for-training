@@ -40,4 +40,3 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     cv2.imwrite(opt.save, srObj)
-    cv2.imwrite('media/ref/x4_BI_270_480_01.png', biObj)
