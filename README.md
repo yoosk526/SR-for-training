@@ -34,8 +34,8 @@ In this second stage, we use also **QAT** *(Quantization Aware Training)*.
 
     ```
     # 1st stage
-    python train.py ...
+    python train.py --preload --epochs 200
 
     # 2nd stage
-    python train.py ...
+    python train.py --preload --load [pretrained weight] --epochs 300 --qat
     ```
