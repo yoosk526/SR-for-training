@@ -64,6 +64,8 @@ class Trainer:
         self.optimizer, self.scheduler = self.get_optimizer(args)
         
         self.device = torch.device(args.device)
+        self.step = args.step
+        self.gamma = args.gamma
         self.epochs = args.epochs
         
         self.exp_dir = None
@@ -201,7 +203,7 @@ class Trainer:
             # Save as Dictionary -> torch.load(), load_state_dict()
             torch.save(self.model.state_dict(), model_weight_path)      
         
-    def _finish(self, args):
+    def _finish(self):
         # save final model weights
         if self.qat == True:
             model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_final.jit.pth")
@@ -279,7 +281,7 @@ class Trainer:
         
         plt.xticks(range(min(indices), max(indices)+1, 1), fontsize=5)
         
-        for i in range(args.step, args.epochs, args.step):
+        for i in range(self.step, self.epochs, self.step):
             plt.axvline(x=i, color='lime', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
@@ -309,7 +311,7 @@ class Trainer:
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax2.legend(lines + lines2, labels + labels2, loc='upper left')
 
-        for i in range(args.step, args.epochs, args.step):
+        for i in range(self.step, self.epochs, self.step):
             plt.axvline(x=i, color='lime', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'psnr_ssim_average.png'))
 
