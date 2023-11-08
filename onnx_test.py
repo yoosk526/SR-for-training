@@ -1,6 +1,6 @@
 import cv2
-import numpy as np
 import argparse
+import numpy as np
 import onnxruntime as ort
 from utils.data_utils import *
 from model import abpn, rlfn, innopeak
