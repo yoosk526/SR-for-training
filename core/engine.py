@@ -282,7 +282,7 @@ class Trainer:
         plt.xticks(range(min(indices), max(indices)+1, 1), fontsize=5)
         
         for i in range(self.step, self.epochs, self.step):
-            plt.axvline(x=i, color='lime', linestyle='--')
+            plt.axvline(x=i, color='olivedrab', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
         # Extract average value from list
@@ -312,7 +312,7 @@ class Trainer:
         ax2.legend(lines + lines2, labels + labels2, loc='upper left')
 
         for i in range(self.step, self.epochs, self.step):
-            plt.axvline(x=i, color='lime', linestyle='--')
+            plt.axvline(x=i, color='olivedrab', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'psnr_ssim_average.png'))
 
         elapsed_time = time() - self.start_time
