@@ -1,9 +1,9 @@
 import os
+import json
+import shutil   
 import torch
 import torch.nn as nn
 import torch.quantization as qt
-import shutil   # 파일 및 디렉터리 작업을 수행하기 위한 함수를 제공하는 모듈
-import json
 import matplotlib.pyplot as plt
 import pytorch_quantization
 
@@ -15,6 +15,7 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm import tqdm
 from data.dataset import get_dataloader
 from model import get_model
+from utils.cawr import CosineAnnealingWarmUpRestarts
 from utils.metric import AverageMeter
 from utils import innopeak_loss
 from torchmetrics.functional.image import peak_signal_noise_ratio, \
@@ -23,14 +24,6 @@ from pytorch_quantization import quant_modules
 from pytorch_quantization import nn as quant_nn
 from pytorch_quantization.tensor_quant import QuantDescriptor
 from pytorch_quantization.nn.modules.tensor_quantizer import TensorQuantizer
-
-# import warnings
-# ignored_warnings = [
-#     "Please use quant_min and quant_max to specify the range for observers",
-#     "_aminmax is deprecated as of PyTorch 1.11"
-# ]
-# for warning_message in ignored_warnings:
-#     warnings.filterwarnings("ignore", category=UserWarning, message=warning_message)
 
 class Trainer:
     def __init__(self, args):
@@ -62,7 +55,10 @@ class Trainer:
             self.model_name = args.model
         else:
             self.model_name = args.model + '_QAT'
-        
+            quant_modules.initialize()
+            quant_desc_input = QuantDescriptor(calib_method="max")
+            quant_nn.QuantConv2d.set_default_quant_desc_input(quant_desc_input)
+            quant_nn.QuantConv2d.set_default_quant_desc_weight(quant_desc_input)
         
         self.criterion = self.get_criterion(args)
         self.optimizer, self.scheduler = self.get_optimizer(args)
@@ -81,24 +77,24 @@ class Trainer:
 
     def get_criterion(self, args):
         if args.loss == 'l1':
-            return nn.L1Loss()      # 평균 절대 오차
+            return nn.L1Loss()
         elif args.loss == 'l2':
-            return nn.MSELoss()     # 평균 제곱 오차
+            return nn.MSELoss()
         elif args.loss == 'inno_loss':
             return innopeak_loss.InnoPeak_loss()
 
     def get_optimizer(self, args):
         if args.optimizer == 'adam':
             optimizer = Adam(self.model.parameters(), lr=args.lr)
-            scheduler = StepLR(optimizer, args.step, args.gamma)
-            # scheduler = CosineAnnealingWarmUpRestarts(
-            #     optimizer, 20, 1, args.lr, 0, args.gamma
-            # )
+            # scheduler = StepLR(optimizer, args.step, args.gamma)
+            scheduler = CosineAnnealingWarmUpRestarts(
+                optimizer, T_0=args.step, T_mult=1, eta_max=args.lr, T_up=5, gamma=args.gamma
+            )
             return optimizer, scheduler
         
         elif args.optimizer == 'sgd':
             optimizer = SGD(self.model.parameters(), momentum=args.momentum, lr=args.lr)
-            scheduler = StepLR(optimizer, args.step, args.gamma)    # step 마다 lr * gamma를 한다.
+            scheduler = StepLR(optimizer, args.step, args.gamma)
             return optimizer, scheduler
     
     def train(self):
@@ -116,16 +112,6 @@ class Trainer:
         self._finish()
     
     def _prepare(self):
-        if self.qat == True:
-            quant_modules.initialize()
-            quant_desc_input = QuantDescriptor(calib_method="max")
-            quant_nn.QuantConv2d.set_default_quant_desc_input(quant_desc_input)
-            quant_nn.QuantConv2d.set_default_quant_desc_weight(quant_desc_input)
-            # self.model.qconfig = qt.get_default_qat_qconfig('fbgemm')
-            # self.model.qscheme = torch.per_channel_symmetric
-            # self.model.quant = qt.QuantStub()
-            # self.model.dequant = qt.DeQuantStub()
-            # self.model = qt.prepare_qat(self.model)
         self.model.to(self.device)
 
         if not os.path.exists("./run"):
@@ -136,23 +122,22 @@ class Trainer:
         
         # remove duplicate dir
         if os.path.exists(exp_dir):
-            shutil.rmtree(exp_dir)      # exp_dir 경로에 해당하는 디렉터리와 모든 하위 파일들을 삭제
+            shutil.rmtree(exp_dir)
         
         os.makedirs(exp_dir)
         self.exp_dir = exp_dir
         os.makedirs(os.path.join(exp_dir, "weights"))
         self.save_dir = os.path.join(exp_dir, "weights")
         
-        args_dict = vars(self.args)     # vars() : 인자로 전달된 객체의 속성을 Dictionary 형태로 반환
+        args_dict = vars(self.args)
         with open(os.path.join(exp_dir, "config.json"), 'w', encoding='utf-8') as f:
             json.dump(args_dict, f, indent=4, ensure_ascii=False)
         
     def _train(self):
-        self.model.train()  # layer들을 training mode로 바꿔준다.
+        self.model.train()
         train_bar = tqdm(self.train_loader, ncols=120)
-        train_loss_meter = AverageMeter()   # Train 과정 중 평균 loss, accuracy 등을 계산하는데 사용되는 클래스
+        train_loss_meter = AverageMeter()
         for lr_tensor, hr_tensor in train_bar:
-            # Low & High resolution Tensor 이미지를 CPU or GPU로 위치를 옮긴다.
             lr_tensor, hr_tensor = lr_tensor.to(self.device), hr_tensor.to(self.device)
             self.optimizer.zero_grad()
             
@@ -163,9 +148,9 @@ class Trainer:
             loss = self.criterion(sr_tensor, hr_tensor)
             
             # backpropagation
-            loss.backward()                     # 역전파 학습
-            self.optimizer.step()               # 기울기 업데이트
-            train_loss_meter.update(loss)       
+            loss.backward()
+            self.optimizer.step()
+            train_loss_meter.update(loss)
             train_bar.set_description(
                 f"# TRAIN : loss(avg)={train_loss_meter.avg:.5f}"
             )
@@ -175,7 +160,7 @@ class Trainer:
         self.scheduler.step()
         
     def _valid(self):
-        self.model.eval()   # layer들을 evaluation mode로 바꿔준다.
+        self.model.eval()   
         valid_bar = tqdm(self.valid_loader, ncols=120)
         psnr_meter = AverageMeter()
         ssim_meter = AverageMeter()
@@ -215,15 +200,8 @@ class Trainer:
                 os.remove(model_weight_path)
             # Save as Dictionary -> torch.load(), load_state_dict()
             torch.save(self.model.state_dict(), model_weight_path)      
-        '''
-        if self.qat == True:
-            # knot_model = self.model.to('cpu')
-            # knot_model = knot_model.eval()
-            # knot_model = qt.convert(knot_model)
-            torch.jit.save(torch.jit.script(knot_model), model_weight_path)
-            del knot_model
-        '''
-    def _finish(self):
+        
+    def _finish(self, args):
         # save final model weights
         if self.qat == True:
             model_weight_path = os.path.join(self.save_dir, f"{self.model_name}_final.jit.pth")
@@ -301,6 +279,8 @@ class Trainer:
         
         plt.xticks(range(min(indices), max(indices)+1, 1), fontsize=5)
         
+        for i in range(args.step, args.epochs, args.step):
+            plt.axvline(x=i, color='lime', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'training_loss.png'))
         
         # Extract average value from list
@@ -329,6 +309,8 @@ class Trainer:
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax2.legend(lines + lines2, labels + labels2, loc='upper left')
 
+        for i in range(args.step, args.epochs, args.step):
+            plt.axvline(x=i, color='lime', linestyle='--')
         plt.savefig(os.path.join(self.exp_dir, 'psnr_ssim_average.png'))
 
         elapsed_time = time() - self.start_time
