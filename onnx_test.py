@@ -1,6 +1,6 @@
 import cv2
-import numpy as np
 import argparse
+import numpy as np
 import onnxruntime as ort
 from utils.data_utils import *
 from model import abpn, rlfn, innopeak
@@ -40,4 +40,3 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     cv2.imwrite(opt.save, srObj)
-    cv2.imwrite('media/ref/x4_BI_270_480_01.png', biObj)
