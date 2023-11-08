@@ -31,7 +31,7 @@ def get_args_parser():
     parser.add_argument("--momentum", type=float, default=0.9375)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--step", type=int, default=40)
+    parser.add_argument("--step", type=int, default=30)
     parser.add_argument("--gamma", type=float, default=0.2)
     parser.add_argument("--save_interval", type=int, default=10)
     
