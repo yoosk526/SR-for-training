@@ -2,7 +2,7 @@
   
 This repository is for training model.  
 We trained our model in **Docker Container** *(CUDA 11.5).*  
-If you do **git clone** and upload this repository to your Google Drive, you can train model on *Colab*.  
+If you do **git clone** and upload this repository to your Google Drive, you can train the model on *Colab*.  
 *(`SR_train_on_Colab.ipynb` is code for training on Colab, but it might raise error)*  
 Generally, we recommend using Docker to train. If you have great GPU, you don't need it.
 
