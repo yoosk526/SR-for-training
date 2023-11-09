@@ -1,3 +1,4 @@
+import os
 import cv2
 import torch
 import argparse
@@ -7,10 +8,10 @@ from model import abpn, rlfn, innopeak
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-	"--image", type=str, default="./media/ori/270_480_01.png"
+	"--image", type=str, default="media/ori/270_480_01.png"
 )
 parser.add_argument(
-	"--weight", type=str, default="./run/abpn..."
+	"--weight", type=str, default="run/abpn..."
 )
 parser.add_argument(
 	"--model", type=str, choices=['abpn', 'rlfn', 'innopeak'], default='abpn'
@@ -52,15 +53,15 @@ if __name__ == "__main__":
     with torch.no_grad():
         srObj = model(imgToTensor).detach().numpy()
     srObj = postprocess(srObj, opt.norm)
-
-    BICUBIC_SR_WINDOW = "BICUBIC vs SUPER-RESOLUTION"
-
-    cv2.namedWindow(BICUBIC_SR_WINDOW)
-
-    bicubic = bicubicResize(openImage(opt.image))
-    canvas = horizontalFusion(bicubic, srObj)
     
-    cv2.imshow(BICUBIC_SR_WINDOW, canvas)
-
+    cv2.imshow("SuperResolution", srObj)
     cv2.waitKey()
     cv2.destroyAllWindows()
+
+    folder = "media/pth_test/" + opt.weight[9:22]
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    idx = [opt.weight.find('_')+1, opt.weight.find('.')]
+    save = folder + opt.weight[idx[0]:idx[1]] + ".png"
+    print(save)
+    cv2.imwrite(save, srObj)
