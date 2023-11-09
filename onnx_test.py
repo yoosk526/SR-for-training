@@ -13,7 +13,7 @@ parser.add_argument(
 	"--onnx", type=str, default="./onnx/x4_270_480.onnx"
 )
 parser.add_argument(
-	"--save", type=str, default="./media/result/x4_270_480_01.png"
+	"--save", type=str
 )
 parser.add_argument(
 	"--scale", type=int, default=4
@@ -39,4 +39,8 @@ if __name__ == "__main__":
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-    cv2.imwrite(opt.save, srObj)
+    if not opt.save:
+        save = "./media/result/" + opt.onnx[-19:-5] + opt.image[-7:]
+        cv2.imwrite(save, srObj)
+    else:
+        cv2.imwrite(opt.save, srObj)
