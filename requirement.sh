@@ -1,4 +1,6 @@
 git config --global alias.st status    # git status -> git st
+git config --global user.name "yoosk526"
+git config --global user.email "yoosk526@naver.com"
 
 pip install ujson    # Loading annotations faster
 pip install torchmetrics
